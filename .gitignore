@@ -1,0 +1,13 @@
+# 个人答卷导出（含个人作答内容，勿公开）
+法考答卷-*.txt
+法考答卷-*.md
+法考答卷-*.json
+
+# 生成物与本地素材
+/_shot/
+/_ref/
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store

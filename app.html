@@ -1,0 +1,2196 @@
+<title>法考主观题机考模拟</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600&display=swap">
+
+<style>
+/* ============================================================================
+   外观参照 国家统一法律职业资格考试计算机化考试模拟答题系统（主观题）。
+   这是刻意只做一套亮色的设计——考场系统不会跟随系统深色模式，
+   所以不写 prefers-color-scheme，每个颜色都显式声明。
+   ============================================================================ */
+:root{
+  --blue:      #61ABE8;   /* 顶栏 / 面板标题条 */
+  --blue-dk:   #4E9BDC;
+  --panel:     #DDEBF6;   /* 左栏、工具条底色 */
+  --paper:     #F9FDFF;   /* 材料区 */
+  --answerbg:  #EAF4FB;   /* 答题区 */
+  --bar:       #E3F0F9;   /* 次级底色 */
+  --line:      #98AEE8;   /* 按钮边框 */
+  --line-soft: #BCD0F0;
+  --line-hard: #6E8FD0;
+  --tabon:     #FFBB00;   /* 激活的问题标签 */
+  --tabon-dk:  #D89A00;
+  --red:       #FA0000;
+  --amber:     #F5A623;
+  --ink:       #333333;
+  --ink-2:     #5A6B7C;
+  --ink-3:     #8A99A8;
+  --btn-t:     #F7FAFE;
+  --btn-b:     #E4EDFA;
+  --btn-t-on:  #FFFFFF;
+  --btn-b-on:  #EAF2FD;
+
+  --sans:"Microsoft YaHei","PingFang SC","Noto Sans SC","Hiragino Sans GB",sans-serif;
+  --song:SimSun,"Songti SC","Noto Serif SC","STSong",serif;
+  --mono:"Consolas","Courier New",monospace;
+
+  --r:2px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--panel);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:12px;
+  line-height:1.5;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:2px solid var(--blue-dk);outline-offset:1px}
+::-webkit-scrollbar{width:15px;height:15px}
+::-webkit-scrollbar-track{background:#EDF3FA}
+::-webkit-scrollbar-thumb{background:#B9CCE4;border:1px solid #EDF3FA}
+::-webkit-scrollbar-thumb:hover{background:#9FB6D4}
+
+/* ---------- 经典 3D 按钮（参照里的按钮是浅蓝渐变+蓝边） ---------- */
+.btn3d{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  height:22px;padding:0 9px;
+  font-size:12px;color:#22344A;
+  background:linear-gradient(to bottom,var(--btn-t),var(--btn-b));
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  transition:background .1s,border-color .1s;
+}
+.btn3d:hover{background:linear-gradient(to bottom,#FFF,#DCE9FA);border-color:var(--line-hard)}
+.btn3d:active{background:linear-gradient(to bottom,#D8E6F8,#EEF4FD);box-shadow:inset 0 1px 2px rgba(0,0,0,.12)}
+.btn3d[disabled]{color:#9DAEC2;background:linear-gradient(to bottom,#FBFCFE,#F0F4FA);border-color:var(--line-soft);cursor:default;box-shadow:none}
+.btn3d.on{background:linear-gradient(to bottom,#FFE9A8,#FFD24D);border-color:var(--tabon-dk);color:#4A3400;font-weight:700}
+.btn3d .ic{font-size:11px;line-height:1;opacity:.85}
+
+/* ============================================================================
+   顶栏
+   ============================================================================ */
+.exam{height:100dvh;display:flex;flex-direction:column}
+.topbar{
+  flex:none;height:82px;
+  background:var(--blue);
+  display:flex;align-items:center;gap:14px;
+  padding:0 10px 0 8px;
+  color:#fff;
+  position:relative;
+}
+.cand{display:flex;align-items:center;gap:9px;flex:none}
+.cand-photo{
+  width:56px;height:66px;flex:none;
+  background:#EAF3FC;border:1px solid #fff;border-radius:2px;
+  display:block;overflow:hidden;
+}
+.cand-info{font-size:12px;line-height:1.55;white-space:nowrap}
+.cand-info b{font-weight:400}
+.cand-info .lab{color:#EAF4FF}
+
+.exam-title{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+.exam-title .t1{font-size:15px;font-weight:700;letter-spacing:.5px;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+.exam-title .t2{font-size:12.5px;margin-top:3px;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
+.timer{font-size:12.5px;color:#FFF200;text-shadow:0 1px 1px rgba(0,0,0,.25);white-space:nowrap}
+.timer b{font-family:var(--mono);font-weight:400;letter-spacing:.4px}
+.btn-submit{
+  height:26px;padding:0 15px;
+  font-size:13px;font-weight:700;color:#4A3400;
+  background:linear-gradient(to bottom,#FFF86B,#FFD21E);
+  border:1px solid #D9A400;border-radius:var(--r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 1px 2px rgba(0,0,0,.18);
+}
+.btn-submit:hover{background:linear-gradient(to bottom,#FFFA9A,#FFDC48)}
+.rail-toggle{
+  position:absolute;right:96px;top:0;
+  height:17px;padding:0 9px;
+  font-size:10.5px;color:#7A3E00;
+  background:linear-gradient(to bottom,#FFE07A,#FFC53D);
+  border:1px solid #D9A400;border-top:0;border-radius:0 0 3px 3px;
+  display:flex;align-items:center;gap:3px;
+}
+
+/* ============================================================================
+   主体：左栏 + 右主区
+   ============================================================================ */
+.body{flex:1;min-height:0;display:flex;gap:4px;padding:4px;background:var(--panel)}
+.rail{
+  flex:none;width:202px;min-width:0;
+  background:var(--panel);
+  border:1px solid var(--line-soft);
+  display:flex;flex-direction:column;
+  transition:width .18s ease;
+  overflow:hidden;
+}
+.rail[data-collapsed="1"]{width:22px}
+.rail[data-collapsed="1"] .rail-inner{visibility:hidden}
+.rail-head{
+  flex:none;height:24px;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;padding:0 6px;
+  font-size:12px;font-weight:700;
+}
+.rail-head button{
+  margin-left:auto;font-size:11px;font-weight:400;color:#EAF4FF;
+  display:flex;align-items:center;gap:3px;
+}
+.rail-head button:hover{color:#fff;text-decoration:underline}
+.rail-inner{flex:1;min-height:0;overflow:auto;padding:6px}
+.rail[data-collapsed="1"] .rail-head{writing-mode:vertical-rl;height:100%;width:22px;padding:6px 0;justify-content:flex-start}
+.rail[data-collapsed="1"] .rail-head button{display:none}
+.qchips{display:flex;flex-wrap:wrap;gap:4px;padding:2px 0 8px}
+/* 用 flex 而非 grid：grid 会把 <sup> 变成独立的一行，星号会掉到数字下面 */
+.qchip{
+  position:relative;
+  width:26px;height:23px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12.5px;color:#1A2B3C;
+  background:linear-gradient(to bottom,#FBFDFF,#E7F0FB);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  box-shadow:inset 0 1px 0 #fff;
+}
+.qchip:hover{border-color:var(--line-hard);background:linear-gradient(to bottom,#fff,#DCEAFA)}
+.qchip[data-cur="1"]{background:linear-gradient(to bottom,#FFE9A8,#FFD24D);border-color:var(--tabon-dk);font-weight:700}
+.qchip sup{
+  align-self:flex-start;margin-top:1px;
+  color:var(--red);font-size:10px;line-height:1;
+}
+.qchip sup.mark{color:#E08A00}
+.legend{font-size:10.5px;line-height:1.7;padding:2px 0 10px;letter-spacing:-.2px}
+.legend .h{color:#4A87C4;margin:0 0 2px}
+.legend p{margin:0;color:var(--red)}
+.legend p.q{color:var(--ink-2)}
+.rail-center{text-align:center;padding:4px 0 12px}
+
+/* 我的附加功能：视觉上刻意弱化，不抢参照的观感 */
+.rail-tools{
+  margin-top:14px;padding-top:10px;
+  border-top:1px dashed var(--line-soft);
+  font-size:11px;color:var(--ink-2);
+}
+.rail-tools .rt-h{
+  color:var(--ink-3);letter-spacing:2px;margin-bottom:7px;font-size:10px;
+}
+.rail-tools .btn3d{width:100%;height:24px;margin-bottom:5px;font-size:11px}
+.rt-stat{padding:3px 1px;color:var(--ink-2);font-size:11.5px}
+.rt-stat b{font-family:var(--mono);color:#1A5FA8;font-size:13px}
+.rt-note{color:var(--ink-3);font-size:10.5px;line-height:1.6;margin-top:6px}
+
+/* ---------- 主区 ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.mat-wrap,.ans-wrap{
+  display:flex;flex-direction:column;min-height:0;
+  border:1px solid var(--line-soft);
+  background:var(--paper);
+}
+.mat-wrap{flex:1 1 46%}
+.ans-wrap{flex:1 1 54%;background:var(--answerbg)}
+.mat-wrap[data-zoom="1"],.ans-wrap[data-zoom="1"]{position:fixed;inset:4px;z-index:35;flex:none;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+
+.tabstrip{
+  flex:none;display:flex;align-items:flex-end;gap:0;
+  height:25px;padding:3px 4px 0;
+  background:var(--bar);
+  border-bottom:1px solid var(--line-soft);
+}
+.tab{
+  height:21px;padding:0 11px;
+  font-size:12px;color:#2A4058;
+  background:linear-gradient(to bottom,#FBFDFF,#E9F1FB);
+  border:1px solid var(--line-soft);border-bottom:0;
+  border-radius:3px 3px 0 0;
+  margin-right:-1px;
+}
+.tab:hover{background:linear-gradient(to bottom,#fff,#DCEAFA)}
+.tab.on{
+  background:linear-gradient(to bottom,#FFFFFF,#E4EFFC);
+  border-color:var(--line);border-bottom:1px solid #fff;
+  font-weight:700;color:#123E6E;
+  position:relative;top:1px;
+}
+.toolstrip{
+  flex:none;display:flex;align-items:center;gap:5px;
+  padding:5px 7px;
+  background:var(--bar);
+  border-bottom:1px solid var(--line-soft);
+  min-height:32px;
+}
+.toolstrip .title{
+  font-size:13px;font-weight:700;color:#1A2B3C;white-space:nowrap;
+  padding-right:4px;
+}
+.toolstrip .right{margin-left:auto;display:flex;align-items:center;gap:5px;flex-wrap:nowrap}
+.toolsep{width:1px;height:16px;background:var(--line-soft);margin:0 2px}
+
+.mat-body{
+  flex:1;min-height:0;overflow:auto;
+  padding:16px 22px 30px;
+  font-family:var(--song);
+  font-size:var(--mfs,15px);
+  line-height:1.95;
+  color:var(--ink);
+}
+.mat-body p{margin:0 0 .35em;text-indent:2em;text-align:justify}
+.mat-body p.flat{text-indent:0}
+.mat-body p.src{text-indent:2em;color:#3A4A5A;font-size:.94em;margin-bottom:.9em}
+.mat-body .sec{text-indent:0;font-weight:700;margin:.9em 0 .3em}
+.mat-body ol{margin:.2em 0 .9em;padding-left:2.6em}
+.mat-body ol li{margin-bottom:.15em}
+.mat-body .hl{background:#FFF3A8}
+.mat-hint{color:#93A3B4;font-family:var(--sans);font-size:12.5px;text-indent:0}
+.mat-hint b{color:#5A6B7C}
+
+/* ---------- 问题标签条 ---------- */
+.askstrip{
+  flex:none;display:flex;align-items:stretch;gap:0;
+  background:var(--bar);
+  border-bottom:1px solid var(--line-soft);
+  min-height:30px;padding:4px 7px;
+}
+.asktabs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0}
+.asktab{
+  height:22px;padding:0 10px;
+  font-size:12px;color:#2A4058;
+  background:linear-gradient(to bottom,#FBFDFF,#E7F0FB);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  box-shadow:inset 0 1px 0 #fff;
+  display:inline-flex;align-items:center;gap:2px;
+}
+.asktab:hover{border-color:var(--line-hard);background:linear-gradient(to bottom,#fff,#DCEAFA)}
+.asktab[data-cur="1"]{
+  background:linear-gradient(to bottom,#FFD75E,#FFBB00);
+  border-color:var(--tabon-dk);font-weight:700;color:#3D2A00;
+}
+.asktab sup{align-self:flex-start;margin-top:1px;color:var(--red);font-size:11px;line-height:1}
+.asktab[data-cur="1"] sup{color:#8A2000}
+
+.asktext{
+  flex:none;padding:6px 10px 0;
+  font-family:var(--song);font-size:13px;line-height:1.7;
+  color:#1A2B3C;
+}
+.asktext .no{color:#0F4C81;margin-right:2px}
+.asktext .q-hint{color:#93A3B4;font-family:var(--sans);font-size:12px}
+.countline{
+  flex:none;padding:3px 10px 3px;
+  font-size:12px;color:var(--red);
+}
+.countline b{font-family:var(--mono);font-size:13px;font-weight:400}
+.countline .extra{color:var(--ink-2);margin-left:14px;font-size:11.5px}
+.countline .extra b{color:#1A5FA8;font-size:12px}
+
+.ans-body{flex:1;min-height:0;display:flex;padding:0 8px 6px}
+.answer{
+  flex:1;min-width:0;resize:none;outline:none;
+  background:#FBFDFF;
+  border:1px solid var(--line-soft);
+  font-family:var(--song);
+  font-size:var(--afs,15px);
+  line-height:1.95;
+  color:var(--ink);
+  padding:10px 14px;
+  caret-color:#1A5FA8;
+}
+.answer:focus{border-color:var(--line);background:#fff}
+.answer::placeholder{color:#A9B7C6;font-family:var(--sans);font-size:12px}
+
+.ans-foot{
+  flex:none;display:flex;align-items:center;gap:7px;
+  padding:5px 8px 6px;
+  background:var(--bar);
+  border-top:1px solid var(--line-soft);
+}
+.mark{display:inline-flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;user-select:none;margin-right:2px}
+.mark input{margin:0;width:13px;height:13px;accent-color:#E8A200}
+
+/* ============================================================================
+   抽屉（历史 / 统计 / 设置）
+   ============================================================================ */
+.scrim{position:fixed;inset:0;background:rgba(20,40,70,.34);opacity:0;pointer-events:none;transition:opacity .18s;z-index:40}
+.scrim[data-open="1"]{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:min(468px,95vw);
+  background:var(--paper);border-left:1px solid var(--line);
+  box-shadow:-6px 0 26px rgba(20,40,70,.28);
+  transform:translateX(101%);transition:transform .22s cubic-bezier(.3,.7,.3,1);
+  z-index:41;display:flex;flex-direction:column;
+}
+.drawer[data-open="1"]{transform:none}
+.drawer-head{
+  flex:none;display:flex;align-items:center;gap:3px;
+  padding:6px 8px;background:var(--blue);
+}
+.dtab{
+  height:24px;padding:0 13px;font-size:12.5px;color:#EAF4FF;
+  border:1px solid transparent;border-radius:var(--r);
+}
+.dtab:hover{background:rgba(255,255,255,.16)}
+.dtab[data-on="1"]{
+  background:linear-gradient(to bottom,#FBFDFF,#E4EFFC);
+  border-color:var(--line);color:#123E6E;font-weight:700;
+}
+.drawer-close{margin-left:auto;width:24px;height:24px;font-size:14px;color:#EAF4FF;border-radius:var(--r)}
+.drawer-close:hover{background:rgba(255,255,255,.18);color:#fff}
+.drawer-body{flex:1;min-height:0;overflow:auto;padding:10px}
+.dpanel{display:none}
+.dpanel[data-on="1"]{display:block}
+
+.hist-tools{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.hist-meta{font-size:11px;color:var(--ink-3);margin-bottom:9px;display:flex;justify-content:space-between;gap:8px}
+.hitem{
+  width:100%;text-align:left;display:block;
+  background:linear-gradient(to bottom,#FBFDFF,#F0F6FD);
+  border:1px solid var(--line-soft);border-radius:var(--r);
+  padding:7px 9px;margin-bottom:5px;
+}
+.hitem:hover{border-color:var(--line);background:linear-gradient(to bottom,#fff,#E7F1FC)}
+.hitem[data-on="1"]{border-color:var(--tabon-dk);background:linear-gradient(to bottom,#FFF8E3,#FFEFC4);box-shadow:inset 3px 0 0 var(--tabon)}
+.hitem-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.hitem-time{font-family:var(--mono);font-size:12px;color:#1A2B3C}
+.hitem-badge{font-size:10px;padding:0 5px;border:1px solid var(--line-soft);border-radius:99px;color:var(--ink-2);background:#fff}
+.hitem-badge.manual{border-color:#E0A800;color:#8A6000;background:#FFF6DC}
+.hitem-badge.restore{border-color:#68B08A;color:#1E6B45;background:#E8F7EF}
+.hitem-delta{margin-left:auto;font-family:var(--mono);font-size:11px}
+.hitem-delta[data-sign="+"]{color:#12784E}
+.hitem-delta[data-sign="-"]{color:var(--red)}
+.hitem-delta[data-sign="0"]{color:var(--ink-3)}
+.hitem-prev{font-family:var(--song);font-size:11.5px;color:var(--ink-2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.diffbox{
+  font-family:var(--song);font-size:13.5px;line-height:2;
+  background:#fff;border:1px solid var(--line-soft);padding:11px 13px;
+  max-height:min(46vh,400px);overflow:auto;white-space:pre-wrap;word-break:break-word;
+}
+.diffbox ins{background:#DFF5E7;color:#12784E;text-decoration:none}
+.diffbox del{background:#FDE3E3;color:#B01818;text-decoration:line-through}
+.diffbox .gap{font-family:var(--sans);font-size:11px;color:var(--ink-3)}
+.detail-bar{display:flex;align-items:center;gap:6px;margin:9px 0;flex-wrap:wrap}
+.detail-note{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-left:auto}
+
+.sec-title{
+  font-size:11px;color:var(--ink-3);letter-spacing:2px;
+  margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line-soft);
+}
+.sec-title:first-child{margin-top:0}
+
+.stat-hero{background:#fff;border:1px solid var(--line-soft);padding:12px 14px}
+.stat-hero .cap{font-size:11px;color:var(--ink-3);letter-spacing:2px}
+.stat-hero .big{font-family:var(--mono);font-size:34px;line-height:1.15;color:#1A5FA8}
+.stat-hero .big small{font-size:13px;color:var(--ink-2);margin-left:4px}
+.substats{display:flex;margin-top:10px;border-top:1px solid var(--line-soft);padding-top:9px}
+.substats div{flex:1}
+.substats .k{font-size:10.5px;color:var(--ink-3);display:block}
+.substats .v{font-family:var(--mono);font-size:14px;color:#1A2B3C}
+
+.bar-row{margin-bottom:10px}
+.bar-top{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+.bar-name{font-size:12px;color:var(--ink)}
+.bar-name em{font-style:normal;color:var(--ink-3);font-size:10.5px;margin-left:4px}
+.bar-val{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:#1A2B3C}
+.bar-track{position:relative;height:9px;background:#E4EDF7;border:1px solid var(--line-soft);overflow:hidden}
+.bar-fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(to bottom,#8FC4EE,#5AA3E0)}
+.bar-fill[data-state="done"]{background:linear-gradient(to bottom,#8FD6AE,#4FB07E)}
+.bar-fill[data-state="low"]{background:#C6D3E0}
+.bar-target{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--red)}
+.bar-legend{font-size:10.5px;color:var(--ink-3);display:flex;align-items:center;gap:5px;margin-top:3px}
+.bar-legend i{width:2px;height:9px;background:var(--red);display:inline-block}
+
+.setting{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.setting:last-of-type{border-bottom:0}
+.setting .lbl{flex:1;min-width:0}
+.setting .lbl b{display:block;font-size:12.5px;font-weight:400;color:var(--ink)}
+.setting .lbl span{font-size:11px;color:var(--ink-3);line-height:1.5;display:block}
+.setting input[type=text],.setting input[type=number]{
+  width:150px;height:24px;padding:0 7px;font-size:12px;
+  border:1px solid var(--line);border-radius:var(--r);background:#fff;font-family:var(--sans);
+}
+.setting input:focus{outline:none;border-color:var(--line-hard);box-shadow:0 0 0 2px #D6E6F8}
+.switch{position:relative;width:38px;height:20px;flex:none;background:#C3D3E4;border:1px solid var(--line);border-radius:99px}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .16s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch[data-on="1"]{background:#7FB8E8}
+.switch[data-on="1"]::after{transform:translateX(18px)}
+.seg{display:flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{height:22px;padding:0 10px;font-size:11.5px;color:#2A4058;background:linear-gradient(to bottom,var(--btn-t),var(--btn-b));border-right:1px solid var(--line-soft)}
+.seg button:last-child{border-right:0}
+.seg button[data-on="1"]{background:linear-gradient(to bottom,#FFD75E,#FFBB00);color:#3D2A00;font-weight:700}
+
+/* ---------- 弹窗 ---------- */
+.mhost{position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:18px;background:rgba(20,40,70,.42)}
+.mhost[data-open="1"]{display:grid}
+.modal{
+  background:var(--paper);border:1px solid var(--line-hard);
+  box-shadow:0 10px 40px rgba(10,30,60,.4);
+  width:min(680px,100%);max-height:88vh;display:flex;flex-direction:column;
+  animation:rise .16s ease;
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.modal-head{flex:none;padding:0 12px;height:32px;display:flex;align-items:center;background:var(--blue);color:#fff}
+.modal-head h2{margin:0;font-size:13px;font-weight:700}
+.modal-head .sub{margin-left:10px;font-size:11.5px;color:#DDECFA}
+.modal-body{flex:1;min-height:0;overflow:auto;padding:14px}
+.modal-foot{flex:none;display:flex;gap:7px;justify-content:flex-end;padding:9px 12px;background:var(--bar);border-top:1px solid var(--line-soft)}
+.modal-foot .spacer{margin-right:auto}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;color:var(--ink-3);margin-bottom:4px;letter-spacing:1px}
+.field input[type=text],.field textarea{
+  width:100%;border:1px solid var(--line);border-radius:var(--r);background:#fff;
+  padding:7px 9px;font-size:13px;font-family:var(--song);line-height:1.7;
+}
+.field textarea{resize:vertical;min-height:110px}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--line-hard);box-shadow:0 0 0 2px #D6E6F8}
+.field .hint{font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.5}
+
+.notice{display:flex;gap:8px;padding:9px 11px;background:#FFF6DC;border:1px solid #E8C86A;color:#7A5200;font-size:12px;line-height:1.6;margin-bottom:12px}
+.checkline{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line-soft);background:#fff;margin-bottom:4px;font-size:12.5px}
+.checkline[data-state="empty"]{border-color:#E8C86A;background:#FFFBF0}
+.checkline .n{width:20px;height:20px;display:grid;place-items:center;background:#E4EDF7;border:1px solid var(--line-soft);font-size:11.5px;flex:none}
+.checkline .c{margin-left:auto;font-family:var(--mono);font-size:12px;color:#1A2B3C}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.summary-grid .cell{border:1px solid var(--line-soft);background:#fff;padding:10px 12px}
+.summary-grid .cell .k{font-size:10.5px;color:var(--ink-3);display:block}
+.summary-grid .cell .v{font-family:var(--mono);font-size:19px;color:#1A5FA8}
+.summary-grid .cell .v small{font-size:11px;color:var(--ink-2);margin-left:2px}
+
+.copybox{width:100%;min-height:220px;border:1px solid var(--line);background:#fff;padding:9px 11px;font-family:var(--mono);font-size:11.5px;line-height:1.7;resize:vertical;white-space:pre}
+.copybox:focus{outline:none;border-color:var(--line-hard)}
+.optrow{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.optrow .k{font-size:11px;color:var(--ink-3);width:44px;flex:none;letter-spacing:1px}
+.filerow{display:flex;gap:6px;align-items:center;flex:1;min-width:0}
+.filerow input{flex:1;min-width:0;height:26px;padding:0 8px;border:1px solid var(--line);background:#fff;font-family:var(--mono);font-size:12px}
+.prev-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-3);margin:9px 0 5px}
+.prev-meta b{font-family:var(--mono);color:#1A2B3C}
+.prevbox{
+  width:100%;max-height:180px;overflow:auto;margin:0;
+  border:1px solid var(--line-soft);background:#F4F8FD;padding:9px 11px;
+  font-family:var(--mono);font-size:10.5px;line-height:1.65;color:#41546A;
+  white-space:pre-wrap;word-break:break-word;
+  user-select:none;-webkit-user-select:none;
+}
+.save-hint{display:flex;gap:7px;font-size:11.5px;color:var(--ink-2);line-height:1.6;margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft)}
+.lawbox{font-family:var(--song);font-size:13.5px;line-height:1.95;color:var(--ink)}
+.lawbox p{margin:0 0 .7em;text-indent:2em}
+.lawbox b{color:#0F4C81}
+.empty{text-align:center;color:var(--ink-3);font-size:12px;padding:30px 16px;line-height:1.9}
+.empty b{display:block;color:var(--ink-2);font-size:12.5px;font-weight:400;margin-bottom:4px}
+
+.toast{
+  position:fixed;left:50%;bottom:44px;transform:translate(-50%,10px);
+  background:#1A3A5C;color:#fff;padding:7px 15px;font-size:12.5px;
+  border-radius:2px;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:80;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+}
+.toast[data-on="1"]{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width:1080px){
+  .rail{width:180px}
+  .cand-photo{width:44px;height:52px}
+  .cand-info{font-size:11px}
+  .exam-title .t1{font-size:13px}
+  .exam-title .t2{font-size:11.5px}
+}
+@media (max-width:820px){
+  .topbar{height:auto;flex-wrap:wrap;padding:6px 8px;gap:8px}
+  .exam-title{position:static;transform:none;text-align:left;flex:1;min-width:0}
+  .cand-info{display:none}
+  .rail-toggle{display:none}
+  .body{flex-direction:column}
+  .rail{width:100%;height:auto;max-height:34vh}
+  .rail[data-collapsed="1"]{width:100%;height:24px}
+  .rail[data-collapsed="1"] .rail-head{writing-mode:horizontal-tb;height:24px;width:100%}
+  .mat-wrap,.ans-wrap{flex:1 1 50%}
+  .toolstrip .right,.askstrip .right{gap:3px}
+  .btn3d{padding:0 6px;font-size:11px}
+}
+</style>
+
+<div class="exam">
+
+  <!-- ================= 顶栏 ================= -->
+  <header class="topbar">
+    <div class="cand">
+      <svg class="cand-photo" viewBox="0 0 56 66" aria-hidden="true">
+        <rect width="56" height="66" fill="#EAF3FC"/>
+        <circle cx="28" cy="24" r="11" fill="#F6C9C0"/>
+        <path d="M28 13c7 0 12 4 12 10 0 3-1 5-2 6-2-4-6-6-10-6s-8 2-10 6c-1-1-2-3-2-6 0-6 5-10 12-10z" fill="#2B2B33"/>
+        <path d="M28 12c8 0 13 5 13 12 0 4-2 7-4 8l-1-9c-2 3-5 4-8 4s-6-1-8-4l-1 9c-2-1-4-4-4-8 0-7 5-12 13-12z" fill="#1F1F26"/>
+        <circle cx="23" cy="25" r="1.6" fill="#333"/>
+        <circle cx="33" cy="25" r="1.6" fill="#333"/>
+        <path d="M24 30q4 3 8 0" stroke="#C0776B" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M10 66c0-10 8-16 18-16s18 6 18 16z" fill="#DCE8F6"/>
+        <path d="M28 50c5 0 9 2 12 5H16c3-3 7-5 12-5z" fill="#F2F6FB"/>
+      </svg>
+      <div class="cand-info">
+        <div><span class="lab">姓名：</span><b id="cName">学员 48150078</b></div>
+        <div><span class="lab">性别：</span><b id="cSex">女</b></div>
+        <div><span class="lab">准考证号：</span><b id="cNo">88888888</b></div>
+        <div><span class="lab">身份证号：</span><b id="cId">888888888888888888</b></div>
+      </div>
+    </div>
+
+    <div class="exam-title">
+      <div class="t1">国家统一法律职业资格考试计算机化考试模拟答题系统</div>
+      <div class="t2" id="examName">2025法律职业资格考试真题(回忆版) 主观题</div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="timer">答题用时:<b id="clock">00:00:00</b></div>
+      <button class="btn-submit" id="btnSubmit">交卷</button>
+    </div>
+
+    <button class="rail-toggle" id="railToggle">▸ 收起答题栏</button>
+  </header>
+
+  <!-- ================= 主体 ================= -->
+  <div class="body">
+
+    <!-- 左栏：答题卡 -->
+    <aside class="rail" id="rail" data-collapsed="0">
+      <div class="rail-head"><span id="railTitle">1、主观题</span><button id="railCollapse">◂ 收起</button></div>
+      <div class="rail-inner">
+        <div class="qchips" id="qchips"></div>
+
+        <div class="legend">
+          <p class="h">说明：</p>
+          <p>1.题号右方的 “*” 符号代表该题尚未作答。</p>
+          <p>2.题号右方的 “?” 符号代表该题做过标记。</p>
+          <p>3.作答的同时系统自动保存答案。</p>
+        </div>
+
+        <div class="rail-center">
+          <button class="btn3d" id="btnLaws" style="height:24px;padding:0 12px">法律法规汇编</button>
+          <button class="btn3d" id="btnNewQ" style="height:24px;padding:0 12px;margin-left:4px">+ 新建题目</button>
+        </div>
+
+        <!-- 以下是原系统没有的练习工具，刻意做弱 -->
+        <div class="rail-tools">
+          <div class="rt-h">练 习 工 具</div>
+          <button class="btn3d" id="fileChip">保存到文件：未绑定</button>
+          <div class="rt-stat">全文总计 <b id="totalChars">0</b> 字</div>
+          <div class="rt-note" id="saveNote">作答自动存入本机浏览器</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右主区 -->
+    <div class="main">
+
+      <!-- 材料 -->
+      <section class="mat-wrap" id="matWrap">
+        <div class="tabstrip">
+          <button class="tab on">试卷</button>
+          <button class="tab" id="btnStyle">切换风格</button>
+          <button class="tab" data-fs="m:1">字体大小+</button>
+          <button class="tab" data-fs="m:-1">字体大小-</button>
+        </div>
+        <div class="toolstrip">
+          <div class="title" id="matTitle">1、论述题</div>
+          <div class="right">
+            <button class="btn3d" id="btnEditQ">编辑本题</button>
+            <span class="toolsep"></span>
+            <button class="btn3d" id="btnMarkText">标记文字</button>
+            <button class="btn3d" id="btnUnmarkText">取消标记</button>
+            <button class="btn3d" id="btnZoomMat">放大窗口</button>
+          </div>
+        </div>
+        <div class="mat-body" id="matBody"></div>
+      </section>
+
+      <!-- 答题 -->
+      <section class="ans-wrap" id="ansWrap">
+        <div class="askstrip">
+          <div class="asktabs" id="askTabs"></div>
+          <div class="right" style="margin-left:auto;display:flex;align-items:center;gap:5px">
+            <button class="btn3d" id="btnUndo"><span class="ic">↶</span>撤销</button>
+            <button class="btn3d" id="btnRedo"><span class="ic">↷</span>恢复</button>
+            <button class="btn3d" id="btnCopy"><span class="ic">⧉</span>复制</button>
+            <button class="btn3d" id="btnCut"><span class="ic">✂</span>剪切</button>
+            <button class="btn3d" id="btnPaste"><span class="ic">▤</span>粘贴</button>
+            <button class="btn3d" id="btnZoomAns">放大窗口</button>
+            <span class="toolsep"></span>
+            <button class="btn3d" id="btnHist">历史</button>
+            <button class="btn3d" id="btnStat">统计</button>
+            <button class="btn3d" id="btnSet">设置</button>
+          </div>
+        </div>
+
+        <div class="asktext" id="askText"></div>
+
+        <div class="countline">
+          已输入字数为: <b id="askChars">0</b>
+          <span class="extra">本题 <b id="qChars">0</b> 字 · 建议 <b id="qTarget">—</b></span>
+        </div>
+
+        <div class="ans-body">
+          <textarea class="answer" id="answer" spellcheck="false" autocomplete="off"
+            placeholder="在此作答。回车自动首行缩进两格；Ctrl+S 存快照并写入文件，Alt+←/→ 切题。"></textarea>
+        </div>
+
+        <div class="ans-foot">
+          <label class="mark"><input type="checkbox" id="markBox"> 标记</label>
+          <button class="btn3d" id="prevQ">上一题</button>
+          <button class="btn3d" id="prevA">上一问</button>
+          <button class="btn3d" id="nextA">下一问</button>
+          <button class="btn3d" id="nextQ">下一题</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 抽屉 ================= -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" data-open="0" role="dialog" aria-modal="true" aria-label="历史记录与统计">
+  <div class="drawer-head">
+    <button class="dtab" data-tab="hist" data-on="1">历史记录</button>
+    <button class="dtab" data-tab="stat" data-on="0">字数统计</button>
+    <button class="dtab" data-tab="set" data-on="0">设置</button>
+    <button class="drawer-close" id="drawerClose" aria-label="关闭">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="dpanel" data-panel="hist" data-on="1">
+      <div class="hist-tools">
+        <button class="btn3d" id="btnSnap">保存快照</button>
+        <button class="btn3d" id="btnSaveHist">保存到文件</button>
+        <button class="btn3d" id="btnClearHist">清空本问历史</button>
+      </div>
+      <div class="hist-meta"><span id="histCount">—</span><span>自动快照：满 60 秒或变化 300 字</span></div>
+      <div id="histList"></div>
+      <div id="histDetail"></div>
+    </div>
+    <div class="dpanel" data-panel="stat" data-on="0" id="statPanel"></div>
+    <div class="dpanel" data-panel="set" data-on="0" id="setPanel"></div>
+  </div>
+</aside>
+
+<div class="mhost" id="mhost"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================================
+   0. 工具
+   ========================================================================== */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const pad2 = n => (n < 10 ? "0" : "") + n;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const num = n => (n || 0).toLocaleString("en-US");
+
+const EX_KEY = "fakao.exam.v2";
+const WK_KEY = "fakao.work.v2";
+const SET_KEY = "fakao.settings.v2";
+
+/* 字数：非空白字符数（含标点），与考试系统口径一致 */
+const RE_HAN = /[㐀-䶿一-鿿豈-﫿]/g;
+function countText(s){
+  s = s || "";
+  if (!s) return { total:0, han:0, latin:0, punct:0, paras:0 };
+  const nows = s.replace(/\s/g, "");
+  const han   = (s.match(RE_HAN) || []).length;
+  const latin = (s.match(/[A-Za-z0-9]/g) || []).length;
+  return {
+    total: nows.length, han: han, latin: latin,
+    punct: Math.max(0, nows.length - han - latin),
+    paras: s.split(/\n+/).filter(t => t.trim()).length
+  };
+}
+function fmtDur(ms){
+  ms = Math.max(0, ms);
+  const t = Math.floor(ms / 1000);
+  return pad2(Math.floor(t / 3600)) + ":" + pad2(Math.floor(t % 3600 / 60)) + ":" + pad2(t % 60);
+}
+function fmtClock(ts){ const d = new Date(ts); return pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()); }
+function fmtStamp(ts){ const d = new Date(ts); return (d.getMonth()+1) + "月" + d.getDate() + "日 " + fmtClock(ts); }
+function fmtSpeed(chars, ms){
+  if (!ms || ms < 30000 || !chars) return "";
+  return "约 " + num(Math.round(chars / (ms / 3600000))) + " 字/小时";
+}
+
+const BAD_NAME_CHARS = '\\/:*?"<>|';
+const BOM_CHAR = String.fromCharCode(0xFEFF);
+function sanitizeName(s){
+  const str = String(s == null ? "" : s);
+  let out = "";
+  for (let i = 0; i < str.length; i++){
+    const ch = str.charAt(i), code = str.charCodeAt(i);
+    out += (code < 32 || code === 127 || BAD_NAME_CHARS.indexOf(ch) >= 0) ? "-" : ch;
+  }
+  return out.replace(/\s+/g, " ").trim().slice(0, 92) || "导出";
+}
+
+function copyText(text){
+  const fallback = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch(e){ return false; }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).then(() => true).catch(fallback);
+  }
+  return Promise.resolve(fallback());
+}
+let toastTimer = null;
+function toast(msg){
+  const el = $("#toast");
+  el.textContent = msg; el.dataset.on = "1";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.dataset.on = "0"; }, 1900);
+}
+
+/* ============================================================================
+   1. 题库：题 → 问 两层。问 才是作答单位。
+   ========================================================================== */
+/* 空白练习卷：材料自己填，这里只给占位结构。
+   空材料/空问题在渲染时显示提示文字，不往数据里塞占位符。 */
+const BLANK_Q = 3;                       // 默认几道题
+function blankQuestion(no){
+  return {
+    id: "q" + no, no: no, name: "第" + no + "题", optional: false, target: 800,
+    material: [], asks: [""], reqs: [], laws: []
+  };
+}
+function blankExam(n){
+  const qs = [];
+  for (let i = 1; i <= (n || BLANK_Q); i++) qs.push(blankQuestion(i));
+  return {
+    meta: {
+      examName: "主观题练习",
+      candidate: { name: "练习者", sex: "—", no: "—", id: "—" },
+      durationMin: 240
+    },
+    questions: qs
+  };
+}
+/* ============================================================================
+   2. 状态
+   作答键 = "题id#问序号"
+   ========================================================================== */
+let EXAM = null;
+let W = null;
+let SET = { afs:15, mfs:15, autosnap:true, indent:true, style:"blue", autoFile:true, fileScope:"answers" };
+
+const keyOf = (qid, ai) => qid + "#" + ai;
+const qById = id => EXAM.questions.filter(q => q.id === id)[0];
+const curQ = () => qById(W.cur.qid) || EXAM.questions[0];
+// 每道题至少有一个「问」，否则问题标签条会空掉
+const curAskCount = q => Math.max(1, (q.asks || []).length);
+const allKeys = () => {
+  const out = [];
+  EXAM.questions.forEach(q => { for (let i = 0; i < curAskCount(q); i++) out.push(keyOf(q.id, i)); });
+  return out;
+};
+const ansOf = k => W.answers[k] || "";
+
+function defaultWork(){
+  const answers = {}, marks = {}, history = {};
+  allKeys().forEach(k => { answers[k] = ""; marks[k] = false; history[k] = []; });
+  return {
+    answers: answers, marks: marks, history: history,
+    cur: { qid: EXAM.questions[0].id, ai: 0 },
+    elapsedMs: 0, running: false, startedAt: null
+  };
+}
+function readJSON(k){ try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function writeJSON(k, v){
+  try { localStorage.setItem(k, JSON.stringify(v)); return true; }
+  catch(e){
+    if (pruneHistory(0.5)){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e2){} }
+    return false;
+  }
+}
+
+function boot(){
+  EXAM = readJSON(EX_KEY);
+  if (!EXAM || !EXAM.questions || !EXAM.questions.length || !EXAM.questions[0].asks){
+    EXAM = blankExam();
+    writeJSON(EX_KEY, EXAM);
+  }
+  const s = readJSON(SET_KEY);
+  if (s) Object.assign(SET, s);
+
+  W = readJSON(WK_KEY);
+  if (!W || !W.answers) W = defaultWork();
+  // 上次会话的计时不该继续跑，恢复成静止的累计值
+  W.running = false;
+  W.accumMs = W.elapsedMs || 0;
+  if (!W.cur || !qById(W.cur.qid)) W.cur = { qid: EXAM.questions[0].id, ai: 0 };
+  W.cur.ai = clamp(W.cur.ai | 0, 0, Math.max(0, curAskCount(curQ()) - 1));
+  allKeys().forEach(k => {
+    if (typeof W.answers[k] !== "string") W.answers[k] = "";
+    if (typeof W.marks[k] !== "boolean") W.marks[k] = false;
+    if (!Array.isArray(W.history[k])) W.history[k] = [];
+  });
+  Object.keys(W.answers).forEach(k => {
+    if (allKeys().indexOf(k) < 0){ delete W.answers[k]; delete W.marks[k]; delete W.history[k]; }
+  });
+}
+function saveSet(){ writeJSON(SET_KEY, SET); }
+
+let saveTimer = null;
+function saveNow(silent){
+  if (W.running) W.elapsedMs = W.accumMs + (Date.now() - W.runFrom);
+  const ok = writeJSON(WK_KEY, W);
+  if (ok){
+    $("#saveNote").textContent = "已自动保存 " + fmtClock(Date.now());
+    $("#saveNote").style.color = "";
+  } else {
+    $("#saveNote").textContent = "存储空间不足，请导出后清理";
+    $("#saveNote").style.color = "#FA0000";
+  }
+  if (!silent && !ok) toast("存储空间不足，已清理部分旧快照");
+  return ok;
+}
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(() => saveNow(true), 600); }
+
+/* ---------- 快照 ---------- */
+const SNAP_CAP_PER_Q = 60;
+const SNAP_MIN_MS    = 60000;
+const SNAP_MIN_DELTA = 300;
+const SNAP_BUDGET    = 1200000;
+
+function snapshot(key, kind, force){
+  const text = ansOf(key);
+  // 编辑题目会让「问」的个数变化，新键可能还没进 history，这里兜一下
+  const list = W.history[key] || (W.history[key] = []);
+  const last = list[list.length - 1];
+  if (last && last.text === text) return false;
+  if (!force && last){
+    const dt = Date.now() - last.ts;
+    const dd = Math.abs(countText(text).total - last.chars);
+    if (dt < SNAP_MIN_MS && dd < SNAP_MIN_DELTA) return false;
+  }
+  list.push({ ts: Date.now(), text: text, chars: countText(text).total, kind: kind || "auto" });
+  while (list.length > SNAP_CAP_PER_Q) list.shift();
+  pruneHistory(1);
+  return true;
+}
+function pruneHistory(keepRatio){
+  let total = 0; const all = [];
+  const ids = Object.keys(W.history);
+  ids.forEach(k => {
+    (W.history[k] || []).forEach((h, i, arr) => {
+      total += h.text.length;
+      all.push({ k:k, i:i, ts:h.ts, len:h.text.length, last: i === arr.length - 1 });
+    });
+  });
+  if (total <= SNAP_BUDGET) return false;
+  const target = SNAP_BUDGET * (keepRatio == null ? 0.8 : keepRatio);
+  all.sort((a, b) => b.ts - a.ts);
+  const keep = {}; let acc = 0, changed = false;
+  all.forEach(it => {
+    if (it.last || acc + it.len <= target){ keep[it.k + ":" + it.i] = 1; acc += it.len; }
+    else changed = true;
+  });
+  if (!changed) return false;
+  ids.forEach(k => { W.history[k] = (W.history[k] || []).filter((h, i) => keep[k + ":" + i]); });
+  return true;
+}
+
+/* ============================================================================
+   3. 渲染
+   ========================================================================== */
+const curKey = () => keyOf(W.cur.qid, W.cur.ai);
+
+function renderChips(){
+  $("#qchips").innerHTML = EXAM.questions.map(q => {
+    const n = curAskCount(q);
+    let chars = 0, marked = false;
+    for (let i = 0; i < n; i++){ chars += countText(ansOf(keyOf(q.id, i))).total; if (W.marks[keyOf(q.id, i)]) marked = true; }
+    const un = chars === 0;
+    return '<button class="qchip" data-id="' + q.id + '" data-cur="' + (q.id === W.cur.qid ? 1 : 0) + '"' +
+      ' title="第' + q.no + '题 ' + esc(q.name) + ' · ' + num(chars) + ' 字">' +
+      q.no + (un ? '<sup>*</sup>' : "") + (marked ? '<sup class="mark">?</sup>' : "") +
+    '</button>';
+  }).join("");
+}
+
+function renderAskTabs(){
+  const q = curQ();
+  $("#askTabs").innerHTML = (q.asks || []).map((a, i) => {
+    const k = keyOf(q.id, i);
+    const un = countText(ansOf(k)).total === 0;
+    const mk = W.marks[k];
+    return '<button class="asktab" data-ai="' + i + '" data-cur="' + (i === W.cur.ai ? 1 : 0) + '"' +
+      ' title="' + esc(a) + '">问题' + (i + 1) +
+      (un ? '<sup>*</sup>' : "") + (mk ? '<sup style="color:#B00000">?</sup>' : "") + '</button>';
+  }).join("");
+}
+
+function renderMaterial(){
+  const q = curQ();
+  $("#matTitle").textContent = q.no + "、" + q.name + (q.optional ? "（选做）" : "");
+  const mats = (q.material || []).filter(m => m && m.t);
+  let h = "";
+  if (!mats.length){
+    h += '<p class="mat-hint">还没有材料。</p>' +
+         '<p class="mat-hint">点上面「编辑本题」，把题目材料粘进去就行 —— 空行分段，行首 <b>## </b>会变成 [小标题]。</p>';
+  } else {
+    h += mats.map(m => '<p class="' + (m.src ? "src" : "") + '">' + esc(m.t) + '</p>').join("");
+  }
+  const asks = (q.asks || []).filter(a => String(a).trim());
+  if (asks.length){
+    h += '<p class="sec">[问题]</p>';
+    if (asks.length === 1){
+      h += '<p class="flat">' + esc(asks[0]) + '</p>';
+    } else {
+      h += '<ol>' + asks.map(a => '<li>' + esc(a) + '</li>').join("") + '</ol>';
+    }
+  }
+  if ((q.reqs || []).length){
+    h += '<p class="sec">[答题要求]</p>' + q.reqs.map(r => '<p class="flat">' + esc(r) + '</p>').join("");
+  }
+  $("#matBody").innerHTML = h;
+  const box = $("#matBody").parentElement;
+  if (box) box.scrollTop = 0;
+}
+
+function renderAnswer(){
+  const q = curQ();
+  const k = curKey();
+  $("#answer").value = ansOf(k);
+  $("#markBox").checked = !!W.marks[k];
+  $("#railTitle").textContent = q.no + "、主观题";
+  const ask = (q.asks || [])[W.cur.ai] || "";
+  $("#askText").innerHTML = ask
+    ? '<span class="no">' + (W.cur.ai + 1) + '.</span>' + esc(ask)
+    : '<span class="q-hint">还没有写问题 —— 点「编辑本题」，在「问题」框里一行写一问</span>';
+  updateCounts();
+  updateNavButtons();
+}
+
+function updateNavButtons(){
+  const qi = EXAM.questions.map(q => q.id).indexOf(W.cur.qid);
+  const n = curAskCount(curQ());
+  $("#prevQ").disabled = qi <= 0;
+  $("#nextQ").disabled = qi >= EXAM.questions.length - 1;
+  $("#prevA").disabled = W.cur.ai <= 0 && qi <= 0;
+  $("#nextA").disabled = W.cur.ai >= n - 1 && qi >= EXAM.questions.length - 1;
+}
+
+function updateCounts(){
+  const q = curQ(), k = curKey();
+  const c = countText(ansOf(k));
+  $("#askChars").textContent = num(c.total);
+
+  let qc = 0;
+  for (let i = 0; i < curAskCount(q); i++) qc += countText(ansOf(keyOf(q.id, i))).total;
+  $("#qChars").textContent = num(qc);
+  $("#qTarget").textContent = q.target ? num(q.target) : "—";
+
+  let tot = 0;
+  EXAM.questions.forEach(x => { for (let i = 0; i < curAskCount(x); i++) tot += countText(ansOf(keyOf(x.id, i))).total; });
+  $("#totalChars").textContent = num(tot);
+
+  // 问答标签上的 * 号要实时更新
+  $$("#askTabs .asktab").forEach((el, i) => {
+    const kk = keyOf(q.id, i);
+    const star = countText(ansOf(kk)).total === 0 ? '<sup>*</sup>' : "";
+    const mk = W.marks[kk] ? '<sup style="color:#B00000">?</sup>' : "";
+    el.innerHTML = "问题" + (i + 1) + star + mk;
+  });
+  renderChips();
+  updateNavButtons();
+}
+
+/* ---------- 统计 ---------- */
+const totalChars = () => {
+  let t = 0;
+  EXAM.questions.forEach(q => { for (let i = 0; i < curAskCount(q); i++) t += countText(ansOf(keyOf(q.id, i))).total; });
+  return t;
+};
+function renderStats(){
+  const rows = EXAM.questions.map(q => {
+    let total = 0, han = 0, punct = 0, paras = 0, done = 0;
+    for (let i = 0; i < curAskCount(q); i++){
+      const c = countText(ansOf(keyOf(q.id, i)));
+      total += c.total; han += c.han; punct += c.punct; paras += c.paras;
+      if (c.total > 0) done++;
+    }
+    return { q:q, total:total, han:han, punct:punct, paras:paras, done:done, n:curAskCount(q) };
+  });
+  const tot = rows.reduce((s, r) => s + r.total, 0);
+  const han = rows.reduce((s, r) => s + r.han, 0);
+  const pun = rows.reduce((s, r) => s + r.punct, 0);
+  const paras = rows.reduce((s, r) => s + r.paras, 0);
+  const answered = rows.reduce((s, r) => s + r.done, 0);
+  const totalAsks = rows.reduce((s, r) => s + r.n, 0);
+  const maxV = Math.max.apply(null, rows.map(r => Math.max(r.total, r.q.target || 0)).concat([1])) * 1.12;
+
+  let h = '<div class="stat-hero"><div class="cap">全文总计</div>' +
+    '<div class="big">' + num(tot) + '<small>字</small></div>' +
+    '<div class="substats">' +
+      '<div><span class="k">汉字</span><span class="v">' + num(han) + '</span></div>' +
+      '<div><span class="k">标点</span><span class="v">' + num(pun) + '</span></div>' +
+      '<div><span class="k">段落</span><span class="v">' + num(paras) + '</span></div>' +
+      '<div><span class="k">已答</span><span class="v">' + answered + "/" + totalAsks + '</span></div>' +
+    '</div></div>';
+
+  h += '<div class="sec-title">各题字数</div>';
+  rows.forEach(r => {
+    const w = clamp(r.total / maxV * 100, 0, 100);
+    const tw = r.q.target ? clamp(r.q.target / maxV * 100, 0, 100) : 0;
+    const state = r.total === 0 ? "low" : (r.q.target && r.total >= r.q.target ? "done" : "");
+    h += '<div class="bar-row"><div class="bar-top">' +
+      '<span class="bar-name">第' + r.q.no + '题 ' + esc(r.q.name) + (r.q.optional ? '<em>选做</em>' : '') + '</span>' +
+      '<span class="bar-val">' + num(r.total) + (r.q.target ? ' / ' + num(r.q.target) : '') + '</span></div>' +
+      '<div class="bar-track"><span class="bar-fill" data-state="' + state + '" style="width:' + w + '%"></span>' +
+      (r.q.target ? '<span class="bar-target" style="left:' + tw + '%"></span>' : '') + '</div></div>';
+  });
+  h += '<div class="bar-legend"><i></i> 红色刻度为建议字数</div>';
+
+  h += '<div class="sec-title">各问明细</div>';
+  rows.forEach(r => {
+    h += '<div class="checkline"><span class="n">' + r.q.no + '</span><span>' + esc(r.q.name) + '</span>' +
+      '<span class="c">' + r.done + '/' + r.n + ' 问 · ' + num(r.total) + ' 字</span></div>';
+  });
+
+  h += '<div class="sec-title">用时</div><div class="substats" style="border-top:0;padding-top:0">' +
+    '<div><span class="k">已用时</span><span class="v">' + (W.elapsedMs ? fmtDur(W.elapsedMs) : "未开始") + '</span></div>' +
+    '<div><span class="k">速度</span><span class="v">' + (fmtSpeed(tot, W.elapsedMs) || "—") + '</span></div>' +
+    '<div><span class="k">建议时长</span><span class="v">' + (EXAM.meta.durationMin || 240) + ' 分</span></div>' +
+  '</div>';
+
+  $("#statPanel").innerHTML = h;
+}
+
+/* ---------- 历史 ---------- */
+let histOpenTs = null, histMode = "diff";
+
+function renderHistory(){
+  const q = curQ(), k = curKey();
+  const list = W.history[k] || [];
+  $("#histCount").textContent = "第" + q.no + "题 · 问题" + (W.cur.ai + 1) + " · " + list.length + " 个快照";
+  if (!list.length){
+    $("#histList").innerHTML = '<div class="empty"><b>还没有快照</b>开始作答后每满 60 秒或变化 300 字会自动存一版，也可以按 Ctrl+S 手动存。</div>';
+    $("#histDetail").innerHTML = ""; return;
+  }
+  $("#histList").innerHTML = list.map((h, i) => ({ h:h, i:i })).reverse().map(it => {
+    const h = it.h, i = it.i;
+    const prev = i > 0 ? list[i-1] : null;
+    const d = prev ? h.chars - prev.chars : h.chars;
+    const sign = d > 0 ? "+" : (d < 0 ? "-" : "0");
+    const cls = h.kind === "manual" ? "manual" : (h.kind === "restore" ? "restore" : "");
+    const txt = h.kind === "manual" ? "手动" : (h.kind === "restore" ? "恢复前" : "自动");
+    return '<button class="hitem" data-i="' + i + '" data-on="' + (histOpenTs === h.ts ? 1 : 0) + '">' +
+      '<span class="hitem-top"><span class="hitem-time">' + fmtClock(h.ts) + '</span>' +
+      '<span class="hitem-badge ' + cls + '">' + txt + '</span>' +
+      '<span class="hitem-badge">' + num(h.chars) + ' 字</span>' +
+      (prev ? '<span class="hitem-delta" data-sign="' + sign + '">' + (d > 0 ? "+" : "") + num(d) + '</span>' : '') +
+      '</span><span class="hitem-prev">' + (esc(h.text.slice(0, 120)) || "（空白）") + '</span></button>';
+  }).join("");
+  renderHistDetail();
+}
+
+function diffParts(prev, cur){
+  let p = 0;
+  const minLen = Math.min(prev.length, cur.length);
+  while (p < minLen && prev.charCodeAt(p) === cur.charCodeAt(p)) p++;
+  let s = 0;
+  while (s < minLen - p && prev.charCodeAt(prev.length-1-s) === cur.charCodeAt(cur.length-1-s)) s++;
+  const a = prev.slice(p, prev.length - s), b = cur.slice(p, cur.length - s);
+  const out = [];
+  const push = (t, str) => { if (!str) return; const l = out[out.length-1]; if (l && l.t === t) l.s += str; else out.push({t:t, s:str}); };
+  if (p) push("=", cur.slice(0, p));
+  if (a.length * b.length > 1600000){ push("-", a); push("+", b); }
+  else {
+    const n = a.length, m = b.length;
+    const dp = new Uint32Array((n+1)*(m+1));
+    for (let i = n-1; i >= 0; i--){
+      const row = i*(m+1), nxt = (i+1)*(m+1);
+      for (let j = m-1; j >= 0; j--){
+        dp[row+j] = a.charCodeAt(i) === b.charCodeAt(j) ? dp[nxt+j+1] + 1 : Math.max(dp[nxt+j], dp[row+j+1]);
+      }
+    }
+    let i = 0, j = 0;
+    while (i < n && j < m){
+      if (a.charCodeAt(i) === b.charCodeAt(j)){ push("=", a[i]); i++; j++; }
+      else if (dp[(i+1)*(m+1)+j] >= dp[i*(m+1)+j+1]){ push("-", a[i]); i++; }
+      else { push("+", b[j]); j++; }
+    }
+    while (i < n) push("-", a[i++]);
+    while (j < m) push("+", b[j++]);
+  }
+  if (s) push("=", cur.slice(cur.length - s));
+  return out;
+}
+
+function renderHistDetail(){
+  const list = W.history[curKey()] || [];
+  const idx = list.map((h, i) => i).filter(i => list[i].ts === histOpenTs)[0];
+  if (idx == null){ $("#histDetail").innerHTML = ""; return; }
+  const h = list[idx], prev = idx > 0 ? list[idx-1] : null;
+  const d = prev ? h.chars - prev.chars : h.chars;
+  let body;
+  if (histMode === "diff" && prev){
+    body = '<div class="diffbox">' + diffParts(prev.text, h.text).map(pt => {
+      if (pt.t === "+") return "<ins>" + esc(pt.s) + "</ins>";
+      if (pt.t === "-") return "<del>" + esc(pt.s) + "</del>";
+      const str = pt.s;
+      if (str.length > 240) return esc(str.slice(0,90)) + '<span class="gap">  ……略 ' + (str.length-180) + ' 字……  </span>' + esc(str.slice(-90));
+      return esc(str);
+    }).join("") + '</div>';
+  } else {
+    body = '<div class="diffbox">' + (esc(h.text) || "（空白）") + '</div>';
+  }
+  $("#histDetail").innerHTML =
+    '<div class="sec-title">' + fmtStamp(h.ts) + ' 的这一版</div>' +
+    '<div class="detail-bar"><div class="seg">' +
+      '<button data-mode="diff" data-on="' + (histMode === "diff" ? 1 : 0) + '">与上一版对比</button>' +
+      '<button data-mode="full" data-on="' + (histMode === "full" ? 1 : 0) + '">完整原文</button>' +
+    '</div><span class="detail-note">较上一版 ' + (d > 0 ? "+" : "") + num(d) + ' 字</span></div>' +
+    body +
+    '<div class="detail-bar">' +
+      '<button class="btn3d" data-restore="' + idx + '">恢复此版本</button>' +
+      '<button class="btn3d" data-copy="' + idx + '">复制这一版</button>' +
+      '<button class="btn3d" data-drop="' + idx + '" style="margin-left:auto">删除此快照</button>' +
+    '</div>';
+}
+
+/* ---------- 设置 ---------- */
+function renderSettings(){
+  const c = EXAM.meta.candidate || {};
+  $("#setPanel").innerHTML =
+    '<div class="sec-title">考生信息</div>' +
+    '<div class="setting"><span class="lbl"><b>姓名</b></span><input type="text" id="setCName" value="' + esc(c.name || "") + '"></div>' +
+    '<div class="setting"><span class="lbl"><b>性别</b></span><input type="text" id="setCSex" value="' + esc(c.sex || "") + '"></div>' +
+    '<div class="setting"><span class="lbl"><b>准考证号</b></span><input type="text" id="setCNo" value="' + esc(c.no || "") + '"></div>' +
+    '<div class="setting"><span class="lbl"><b>身份证号</b></span><input type="text" id="setCId" value="' + esc(c.id || "") + '"></div>' +
+    '<div class="setting"><span class="lbl"><b>试卷名称</b><span>显示在顶栏副标题</span></span>' +
+      '<input type="text" id="setName" value="' + esc(EXAM.meta.examName) + '" style="width:190px"></div>' +
+    '<div class="setting"><span class="lbl"><b>建议时长（分钟）</b></span>' +
+      '<input type="number" id="setDur" min="10" max="600" value="' + (EXAM.meta.durationMin || 240) + '"></div>' +
+
+    '<div class="sec-title">作答</div>' +
+    '<div class="setting"><span class="lbl"><b>回车自动缩进两格</b><span>符合中文答题书写习惯</span></span>' +
+      '<button class="switch" id="setIndent" data-on="' + (SET.indent ? 1 : 0) + '" role="switch"></button></div>' +
+    '<div class="setting"><span class="lbl"><b>自动历史快照</b><span>满 60 秒或变化 300 字存一版</span></span>' +
+      '<button class="switch" id="setAutosnap" data-on="' + (SET.autosnap ? 1 : 0) + '" role="switch"></button></div>' +
+
+    '<div class="sec-title">保存到文件</div>' +
+    '<div class="setting"><span class="lbl"><b>目标文件</b><span id="setFileTarget">' +
+      (fileHandle ? esc(fileHandle.name) : (window.showSaveFilePicker ? "尚未选择" : "浏览器不支持")) + '</span></span>' +
+      (window.showSaveFilePicker ? '<button class="btn3d" id="setBind">' + (fileHandle ? "更换…" : "选择文件…") + '</button>' : '') +
+      (fileHandle ? '<button class="btn3d" id="setUnbind">解除</button>' : '') + '</div>' +
+    '<div class="setting"><span class="lbl"><b>自动写入（每 30 秒）</b><span>有改动才写，需先绑定文件</span></span>' +
+      '<button class="switch" id="setAutoFile" data-on="' + (SET.autoFile ? 1 : 0) + '" role="switch"></button></div>' +
+    '<div class="setting"><span class="lbl"><b>写入内容</b></span><div class="seg">' +
+      '<button data-fscope="answers" data-on="' + (SET.fileScope === "answers" ? 1 : 0) + '">全部答卷</button>' +
+      '<button data-fscope="q" data-on="' + (SET.fileScope === "q" ? 1 : 0) + '">当前题</button>' +
+      '<button data-fscope="hist" data-on="' + (SET.fileScope === "hist" ? 1 : 0) + '">含历史</button>' +
+    '</div></div>' +
+
+    '<div class="sec-title">保存与备份</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' +
+      '<button class="btn3d" id="setExport">保存答卷到文件</button>' +
+      '<button class="btn3d" id="setExportHist">保存历史到文件</button>' +
+      '<button class="btn3d" id="setExportAll">保存完整备份</button>' +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--ink-3);line-height:1.6;margin-bottom:12px">可存为 .txt / .md / .json。完整备份含题库与全部历史，换设备后可导入还原。</div>' +
+
+    '<div class="sec-title">维护</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">' +
+      '<button class="btn3d" id="setImport">导入题库 / 答卷</button>' +
+      '<button class="btn3d" id="setResetWork">清空答卷与历史</button>' +
+      '<button class="btn3d" id="setResetAll">重置为空白题库</button>' +
+    '</div>' +
+
+    '<div class="sec-title">快捷键</div>' +
+    '<div style="font-size:12px;line-height:2;color:var(--ink)">' +
+      '<div><b style="font-family:var(--mono)">Ctrl/⌘ + S</b> 存快照 + 写入已绑定文件</div>' +
+      '<div><b style="font-family:var(--mono)">Alt + ← / →</b> 上一题 / 下一题</div>' +
+      '<div><b style="font-family:var(--mono)">Alt + ↑ / ↓</b> 上一问 / 下一问</div>' +
+      '<div><b style="font-family:var(--mono)">Alt + M</b> 标记 / 取消标记本问</div>' +
+      '<div><b style="font-family:var(--mono)">Esc</b> 关闭面板</div>' +
+    '</div>';
+}
+
+/* ============================================================================
+   4. 导出 / 保存文件
+   ========================================================================== */
+const IN_FRAME = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
+const FMT = {
+  txt:  { label:"纯文本 .txt", ext:"txt",  mime:"text/plain",       bom:true  },
+  md:   { label:"Markdown .md", ext:"md",  mime:"text/markdown",    bom:true  },
+  json: { label:"JSON .json",  ext:"json", mime:"application/json", bom:false }
+};
+let fileHandle = null, pickerBlocked = false, lastFileWrite = 0, lastEditAt = 0;
+
+function blobDownload(filename, text, mime, bom){
+  try {
+    const blob = new Blob([(bom ? BOM_CHAR : "") + text], { type: mime + ";charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.rel = "noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 2000);
+    return "attempted";
+  } catch(e){ return "failed"; }
+}
+function saveFile(filename, text, fmtKey){
+  const f = FMT[fmtKey] || FMT.txt;
+  if (window.showSaveFilePicker && !pickerBlocked){
+    const types = [{ description: f.label, accept: {} }];
+    types[0].accept[f.mime] = ["." + f.ext];
+    return window.showSaveFilePicker({ suggestedName: filename, types: types })
+      .then(h => h.createWritable())
+      .then(w => w.write(new Blob([(f.bom ? BOM_CHAR : "") + text], { type: f.mime + ";charset=utf-8" })).then(() => w.close()))
+      .then(() => "saved")
+      .catch(err => {
+        if (err && err.name === "AbortError") return "cancelled";
+        pickerBlocked = true;
+        return blobDownload(filename, text, f.mime, f.bom);
+      });
+  }
+  return Promise.resolve(blobDownload(filename, text, f.mime, f.bom));
+}
+
+function histBlock(q, k, md){
+  const list = W.history[k] || [];
+  const L = [];
+  const head = "第" + q.no + "题 · " + q.name + " · 问题" + (parseInt(k.split("#")[1], 10) + 1);
+  L.push(md ? "### " + head : "── " + head + " ──");
+  const c = countText(ansOf(k));
+  L.push((md ? "*" : "") + "最终 " + num(c.total) + " 字 · 共 " + list.length + " 个快照" + (md ? "*" : ""));
+  L.push("");
+  if (!list.length){ L.push("（无历史快照）"); L.push(""); return L.join("\n"); }
+  list.forEach((h, i) => {
+    const prev = i > 0 ? list[i-1] : null;
+    const d = prev ? h.chars - prev.chars : h.chars;
+    const meta = "第 " + (i+1) + " 版 · " + fmtStamp(h.ts) + " · " + num(h.chars) + " 字" +
+                 (prev ? "（较上一版 " + (d > 0 ? "+" : "") + num(d) + "）" : "");
+    L.push(md ? "**" + meta + "**" : "· " + meta);
+    L.push(md ? "" : "─".repeat(46));
+    L.push(h.text || "（空白）");
+    L.push("");
+  });
+  return L.join("\n");
+}
+
+function buildExport(scope, qid, fmt, range){
+  const now = Date.now();
+  const md = fmt === "md";
+  if (fmt === "json"){
+    if (scope === "archive") return JSON.stringify({ kind:"archive", version:2, exportedAt:now, exam:EXAM, work:W }, null, 2);
+    return JSON.stringify({ kind:"answers", version:2, exportedAt:now,
+      examName:EXAM.meta.examName, answers:W.answers, marks:W.marks, history:W.history,
+      elapsedMs:W.elapsedMs, startedAt:W.startedAt }, null, 2);
+  }
+  const tot = totalChars();
+  const L = [];
+  L.push(md ? "# 法考主观题练习 · " + (scope === "answers" ? "答卷" : "历史记录")
+            : "法考主观题练习 · " + (scope === "answers" ? "答卷" : "历史记录"));
+  L.push(md ? "" : "═".repeat(56));
+  L.push((md ? "- " : "") + "试卷：" + EXAM.meta.examName);
+  L.push((md ? "- " : "") + "导出时间：" + fmtStamp(now));
+  L.push((md ? "- " : "") + "全文总计：" + num(tot) + " 字");
+  L.push((md ? "- " : "") + "用时：" + (W.elapsedMs ? fmtDur(W.elapsedMs) : "未计时"));
+  L.push(md ? "" : "═".repeat(56));
+  L.push("");
+
+  let qs;
+  if (scope === "answers") qs = EXAM.questions;
+  else if (range === "q") qs = [qById(qid) || curQ()];
+  else qs = EXAM.questions;
+
+  qs.forEach(q => {
+    if (scope === "answers"){
+      let total = 0;
+      const parts = [];
+      for (let i = 0; i < curAskCount(q); i++){
+        const k = keyOf(q.id, i), c = countText(ansOf(k));
+        total += c.total;
+        parts.push("【问题" + (i + 1) + "】" + esc(q.asks[i]));
+        parts.push("");
+        parts.push(ansOf(k) || "（未作答）");
+        parts.push("（" + num(c.total) + " 字）");
+        parts.push("");
+      }
+      const head = "第" + q.no + "题 · " + q.name + (q.optional ? "（选做）" : "");
+      L.push(md ? "## " + head : "━━━ " + head + " ━━━");
+      L.push((md ? "*" : "") + num(total) + " 字 · 建议 " + num(q.target || 0) + " 字" + (md ? "*" : ""));
+      L.push("");
+      L.push(parts.join("\n"));
+    } else {
+      for (let i = 0; i < curAskCount(q); i++) L.push(histBlock(q, keyOf(q.id, i), md));
+    }
+  });
+  return L.join("\n").replace(/\n{3,}/g, "\n\n\n");
+}
+
+/* ---------- 保存文件 ---------- */
+// 题目名默认就是「第N题」，别再拼一次
+const qLabel = q => {
+  const head = "第" + q.no + "题";
+  return (q.name && q.name !== head) ? head + "-" + q.name : head;
+};
+function defaultSaveName(){
+  const d = new Date();
+  const stamp = "" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes());
+  if (SET.fileScope === "q"){ return sanitizeName("法考-" + qLabel(curQ()) + "-" + stamp) + ".txt"; }
+  return sanitizeName("法考答卷-" + stamp) + ".txt";
+}
+function fileContent(){
+  if (SET.fileScope === "q"){
+    const q = curQ();
+    let total = 0; const parts = [];
+    for (let i = 0; i < curAskCount(q); i++){
+      const k = keyOf(q.id, i), c = countText(ansOf(k));
+      total += c.total;
+      parts.push("【问题" + (i + 1) + "】" + q.asks[i], "", ansOf(k) || "（未作答）", "（" + num(c.total) + " 字）", "");
+    }
+    return "法考主观题练习 · 第" + q.no + "题 " + q.name + "\n" +
+      "保存时间：" + fmtStamp(Date.now()) + "\n本题共 " + num(total) + " 字\n" +
+      "═".repeat(56) + "\n\n" + parts.join("\n");
+  }
+  if (SET.fileScope === "hist") return buildExport("hist", W.cur.qid, "txt", "all");
+  return buildExport("answers", null, "txt", "all");
+}
+function renderFileChip(){
+  const chip = $("#fileChip");
+  if (!chip) return;
+  chip.textContent = fileHandle ? ("保存到文件：" + fileHandle.name) : "保存到文件：未绑定";
+  chip.title = fileHandle ? "Ctrl+S 覆盖写入；点击更换" : "点击选择文件，之后 Ctrl+S 直接覆盖保存";
+  chip.classList.toggle("on", !!fileHandle);
+  const tgt = $("#setFileTarget");
+  if (tgt) tgt.textContent = fileHandle ? fileHandle.name : (window.showSaveFilePicker ? "尚未选择" : "浏览器不支持");
+}
+function bindFile(){
+  if (!window.showSaveFilePicker || pickerBlocked) return Promise.resolve(false);
+  return window.showSaveFilePicker({
+    suggestedName: defaultSaveName(),
+    types: [{ description:"文本文件", accept:{ "text/plain":[".txt"] } }]
+  }).then(h => { fileHandle = h; renderFileChip(); return true; })
+    .catch(err => { if (!err || err.name !== "AbortError") pickerBlocked = true; return false; });
+}
+function writeToFile(){
+  if (!fileHandle) return Promise.resolve(false);
+  return fileHandle.createWritable()
+    .then(w => w.write(new Blob([BOM_CHAR + fileContent()], { type:"text/plain;charset=utf-8" })).then(() => w.close()))
+    .then(() => { lastFileWrite = Date.now(); renderFileChip(); return true; })
+    .catch(() => false);
+}
+function fallbackDownload(){
+  const res = blobDownload(defaultSaveName(), fileContent(), "text/plain", true);
+  toast(res === "attempted" ? "已触发下载——若无文件出现，请用「保存到文件」里的复制" : "保存失败，请改用「保存到文件」里的复制");
+}
+function quickSave(){
+  W.answers[curKey()] = $("#answer").value;
+  const snapped = snapshot(curKey(), "manual", true);
+  saveNow(true);
+  if ($("#drawer").dataset.open === "1") renderHistory();
+  const tail = snapped ? "" : "（内容未变）";
+  if (fileHandle){
+    return writeToFile().then(ok => toast(ok ? "已保存到 " + fileHandle.name : "写入文件失败，内容已存在浏览器里"));
+  }
+  if (window.showSaveFilePicker && !pickerBlocked){
+    return bindFile().then(bound => {
+      if (!bound){
+        if (pickerBlocked) return fallbackDownload();
+        toast("未选择文件" + tail + "，内容已存在浏览器里"); return;
+      }
+      return writeToFile().then(ok => toast(ok ? "已保存到 " + fileHandle.name + "，之后 Ctrl+S 直接覆盖" : "文件已绑定，但写入失败"));
+    });
+  }
+  fallbackDownload();
+  return Promise.resolve();
+}
+
+/* ---------- 保存弹窗 ---------- */
+let sv = null;
+function svDefaultName(){
+  const d = new Date();
+  const stamp = "" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes());
+  const q = qById(sv.qid) || curQ();
+  let base;
+  if (sv.scope === "archive") base = "法考完整备份";
+  else if (sv.scope === "answers") base = "法考答卷";
+  else base = sv.range === "q" ? ("法考历史-" + qLabel(q)) : "法考历史-全部";
+  return sanitizeName(base + "-" + stamp) + "." + FMT[sv.fmt].ext;
+}
+function svText(){ return buildExport(sv.scope, sv.qid, sv.fmt, sv.range); }
+function svBody(){
+  const formats = sv.scope === "archive" ? ["json"] : ["txt","md","json"];
+  const text = svText();
+  const kb = (new Blob([text]).size / 1024).toFixed(1);
+  const lines = text.split("\n").length;
+  let h = "";
+  if (formats.length > 1){
+    h += '<div class="optrow"><span class="k">格式</span><div class="seg">' +
+      formats.map(f => '<button data-v="' + f + '" data-on="' + (sv.fmt === f ? 1 : 0) + '">' + FMT[f].label + '</button>').join("") +
+    '</div></div>';
+  }
+  if (sv.scope === "hist"){
+    const q = qById(sv.qid) || curQ();
+    h += '<div class="optrow"><span class="k">范围</span><div class="seg">' +
+      '<button data-v="q" data-on="' + (sv.range === "q" ? 1 : 0) + '">本题 · 第' + q.no + '题</button>' +
+      '<button data-v="all" data-on="' + (sv.range === "all" ? 1 : 0) + '">全部 ' + EXAM.questions.length + ' 题</button>' +
+    '</div></div>';
+  }
+  h += '<div class="optrow"><span class="k">文件名</span><div class="filerow">' +
+    '<input id="svName" value="' + esc(sv.name) + '" spellcheck="false"><span style="font-family:var(--mono);font-size:12px;color:var(--ink-2)">.' + FMT[sv.fmt].ext + '</span>' +
+  '</div></div>';
+  h += '<div class="prev-meta"><span>共 <b>' + num(lines) + '</b> 行 · <b>' + kb + '</b> KB</span>' +
+       '<span style="margin-left:auto">' + (text.length > 1200 ? "以下为前 1200 字预览，非完整内容" : "内容预览") + '</span></div>';
+  h += '<pre class="prevbox">' + esc(text.slice(0, 1200)) + (text.length > 1200 ? "\n……" : "") + '</pre>';
+  h += IN_FRAME
+    ? '<div class="save-hint"><span>!</span><span>当前在嵌入式预览里运行，浏览器可能拦截下载。若点「保存文件」后没有反应，请改用<b>「复制内容」</b>。</span></div>'
+    : '<div class="save-hint"><span>i</span><span>保存为 <b>UTF-8</b> 编码，Windows 记事本可直接打开。</span></div>';
+  return h;
+}
+function openSaveModal(scope, qid, range){
+  sv = { scope:scope, qid:qid || W.cur.qid, range:range || (qid ? "q" : "all"),
+         fmt: scope === "archive" ? "json" : "txt", name:"" };
+  sv.name = svDefaultName();
+  openModal({
+    title: scope === "archive" ? "保存完整备份" : scope === "answers" ? "保存全部答卷" : "保存历史记录",
+    sub: scope === "archive" ? "含题库、答卷与全部历史" : "快照按时间正序，带字数与增减",
+    body: svBody(),
+    foot: '<button class="btn3d" data-act="cancel">取消</button>' +
+          '<button class="btn3d" data-act="sv-copy">复制内容</button>' +
+          '<button class="btn3d" data-act="sv-save" data-autofocus>保存文件</button>'
+  });
+}
+function svRefresh(){ const b = $("#mhost .modal-body"); if (b) b.innerHTML = svBody(); }
+
+/* ============================================================================
+   5. 弹窗 / 抽屉
+   ========================================================================== */
+let modalOnClose = null;
+function openModal(opt){
+  $("#mhost").innerHTML = '<div class="modal" role="dialog" aria-modal="true">' +
+    '<div class="modal-head"><h2>' + esc(opt.title) + '</h2>' + (opt.sub ? '<span class="sub">' + esc(opt.sub) + '</span>' : '') + '</div>' +
+    '<div class="modal-body">' + opt.body + '</div>' +
+    '<div class="modal-foot">' + (opt.foot || '') + '</div></div>';
+  $("#mhost").dataset.open = "1";
+  modalOnClose = opt.onClose || null;
+  const f = $("#mhost [data-autofocus]"); if (f) f.focus();
+}
+function closeModal(){
+  $("#mhost").dataset.open = "0"; $("#mhost").innerHTML = ""; sv = null;
+  if (modalOnClose){ const f = modalOnClose; modalOnClose = null; f(); }
+}
+function openDrawer(tab){
+  $("#drawer").dataset.open = "1"; $("#scrim").dataset.open = "1";
+  $$(".dtab").forEach(b => b.dataset.on = b.dataset.tab === tab ? "1" : "0");
+  $$(".dpanel").forEach(p => p.dataset.on = p.dataset.panel === tab ? "1" : "0");
+  if (tab === "hist") renderHistory();
+  if (tab === "stat") renderStats();
+  if (tab === "set") renderSettings();
+}
+function closeDrawer(){ $("#drawer").dataset.open = "0"; $("#scrim").dataset.open = "0"; }
+
+/* ============================================================================
+   6. 导航 / 计时
+   ========================================================================== */
+function goto(qid, ai){
+  W.answers[curKey()] = $("#answer").value;
+  if (SET.autosnap) snapshot(curKey(), "auto", false);
+  const q = qById(qid) || EXAM.questions[0];
+  W.cur = { qid: q.id, ai: clamp(ai == null ? 0 : ai, 0, Math.max(0, curAskCount(q) - 1)) };
+  histOpenTs = null;
+  renderChips(); renderAskTabs(); renderMaterial(); renderAnswer();
+  saveSoon();
+  $("#answer").focus();
+  if ($("#drawer").dataset.open === "1"){ renderHistory(); renderStats(); }
+}
+function stepQ(d){
+  const i = EXAM.questions.map(q => q.id).indexOf(W.cur.qid);
+  const j = clamp(i + d, 0, EXAM.questions.length - 1);
+  if (j !== i) goto(EXAM.questions[j].id, 0);
+}
+function stepA(d){
+  const q = curQ(), n = curAskCount(q);
+  const j = W.cur.ai + d;
+  if (j >= 0 && j < n){ goto(q.id, j); return; }
+  const i = EXAM.questions.map(x => x.id).indexOf(q.id);
+  const k = i + (d > 0 ? 1 : -1);
+  if (k >= 0 && k < EXAM.questions.length) goto(EXAM.questions[k].id, d > 0 ? 0 : curAskCount(EXAM.questions[k]) - 1);
+}
+
+let timerId = null;
+function tick(){
+  if (W.running){
+    W.accumMs = W.accumMs || 0;
+    W.elapsedMs = W.accumMs + (Date.now() - W.runFrom);
+  }
+  $("#clock").textContent = fmtDur(W.elapsedMs || 0);
+}
+function timerStart(){
+  if (W.running) return;
+  W.running = true; W.runFrom = Date.now(); W.accumMs = W.elapsedMs || 0;
+  if (!W.startedAt) W.startedAt = Date.now();
+  saveSoon();
+}
+function timerStop(){
+  if (!W.running) return;
+  W.elapsedMs = (W.accumMs || 0) + (Date.now() - W.runFrom);
+  W.running = false; W.accumMs = W.elapsedMs;
+  saveSoon();
+}
+
+/* ============================================================================
+   7. 交卷
+   ========================================================================== */
+function doSubmit(){
+  W.answers[curKey()] = $("#answer").value;
+  const rows = EXAM.questions.map(q => {
+    let total = 0, done = 0;
+    for (let i = 0; i < curAskCount(q); i++){
+      const c = countText(ansOf(keyOf(q.id, i))).total;
+      total += c; if (c > 0) done++;
+    }
+    return { q:q, total:total, done:done, n:curAskCount(q) };
+  });
+  const empty = rows.filter(r => r.done < r.n);
+  const tot = rows.reduce((s, r) => s + r.total, 0);
+  let body = "";
+  if (empty.length){
+    body += '<div class="notice"><span>!</span><span>还有 ' + empty.length + ' 道题存在未作答的问：' +
+      empty.map(r => "第" + r.q.no + "题(" + (r.n - r.done) + "问)").join("、") + '。交卷后将不能再修改。</span></div>';
+  }
+  body += rows.map(r =>
+    '<div class="checkline" data-state="' + (r.done === r.n ? "" : "empty") + '">' +
+      '<span class="n">' + r.q.no + '</span><span>' + esc(r.q.name) + (r.q.optional ? ' <span style="color:var(--ink-3);font-size:11px">选做</span>' : '') + '</span>' +
+      '<span class="c">' + r.done + '/' + r.n + ' 问 · ' + num(r.total) + ' 字</span></div>'
+  ).join("");
+  openModal({
+    title: "确认交卷？",
+    sub: "全文 " + num(tot) + " 字 · 用时 " + fmtDur(W.elapsedMs || 0),
+    body: body,
+    foot: '<button class="btn3d" data-act="cancel">继续作答</button>' +
+          '<button class="btn3d" data-act="ok" data-autofocus>确认交卷</button>'
+  });
+}
+function doFinish(){
+  timerStop();
+  W.answers[curKey()] = $("#answer").value;
+  allKeys().forEach(k => snapshot(k, "auto", true));
+  saveNow(true);
+  const rows = EXAM.questions.map(q => {
+    let total = 0, done = 0;
+    for (let i = 0; i < curAskCount(q); i++){
+      const c = countText(ansOf(keyOf(q.id, i))).total;
+      total += c; if (c > 0) done++;
+    }
+    return { q:q, total:total, done:done, n:curAskCount(q) };
+  });
+  const tot = rows.reduce((s, r) => s + r.total, 0);
+  const snaps = allKeys().reduce((s, k) => s + (W.history[k] || []).length, 0);
+  openModal({
+    title: "已交卷",
+    sub: "答卷与全部历史快照已保存在本机",
+    body:
+      '<div class="summary-grid">' +
+        '<div class="cell"><span class="k">总字数</span><span class="v">' + num(tot) + '<small>字</small></span></div>' +
+        '<div class="cell"><span class="k">用时</span><span class="v">' + fmtDur(W.elapsedMs || 0) + '</span></div>' +
+        '<div class="cell"><span class="k">已答</span><span class="v">' + rows.reduce((s,r)=>s+r.done,0) + '<small>/ ' + rows.reduce((s,r)=>s+r.n,0) + ' 问</small></span></div>' +
+        '<div class="cell"><span class="k">历史快照</span><span class="v">' + snaps + '<small>版</small></span></div>' +
+      '</div>' +
+      '<div class="sec-title">各题字数</div>' +
+      rows.map(r => '<div class="checkline"><span class="n">' + r.q.no + '</span><span>' + esc(r.q.name) + '</span>' +
+        '<span class="c">' + num(r.total) + ' 字</span></div>').join(""),
+    foot: '<button class="btn3d" data-act="export">保存答卷到文件</button>' +
+          '<button class="btn3d" data-act="close">继续查看</button>' +
+          '<button class="btn3d" data-act="restart" data-autofocus>重新计时</button>'
+  });
+}
+
+/* ============================================================================
+   8. 事件
+   ========================================================================== */
+function bind(){
+  const ta = $("#answer");
+
+  ta.addEventListener("input", () => {
+    W.answers[curKey()] = ta.value;
+    lastEditAt = Date.now();
+    timerStart();
+    updateCounts(); saveSoon();
+    if (SET.autosnap) snapshot(curKey(), "auto", false);
+  });
+  ta.addEventListener("keydown", e => {
+    if (e.key === "Enter" && SET.indent && !e.shiftKey && !e.ctrlKey && !e.metaKey){
+      const pos = ta.selectionStart, before = ta.value.slice(0, pos);
+      if (/\n\s*$/.test(before) || before === ""){
+        e.preventDefault();
+        ta.setRangeText("　　", pos, ta.selectionEnd, "end");
+        W.answers[curKey()] = ta.value;
+        updateCounts(); saveSoon();
+      }
+    }
+  });
+  ta.addEventListener("blur", () => {
+    W.answers[curKey()] = ta.value;
+    if (SET.autosnap) snapshot(curKey(), "auto", false);
+  });
+
+  // 左栏答题卡
+  $("#qchips").addEventListener("click", e => {
+    const c = e.target.closest(".qchip"); if (!c) return;
+    if (c.dataset.id !== W.cur.qid){ W.answers[curKey()] = ta.value; goto(c.dataset.id, 0); }
+  });
+  // 问题标签
+  $("#askTabs").addEventListener("click", e => {
+    const t = e.target.closest(".asktab"); if (!t) return;
+    const i = +t.dataset.ai;
+    if (i !== W.cur.ai){ W.answers[curKey()] = ta.value; goto(W.cur.qid, i); }
+  });
+
+  // 底部导航
+  $("#prevQ").addEventListener("click", () => { W.answers[curKey()] = ta.value; stepQ(-1); });
+  $("#nextQ").addEventListener("click", () => { W.answers[curKey()] = ta.value; stepQ(1); });
+  $("#prevA").addEventListener("click", () => { W.answers[curKey()] = ta.value; stepA(-1); });
+  $("#nextA").addEventListener("click", () => { W.answers[curKey()] = ta.value; stepA(1); });
+  $("#markBox").addEventListener("change", e => {
+    W.marks[curKey()] = e.target.checked;
+    renderChips(); renderAskTabs(); saveSoon();
+    if ($("#drawer").dataset.open === "1") renderHistory();
+  });
+
+  // 左栏收起
+  const setRail = v => {
+    $("#rail").dataset.collapsed = v ? "1" : "0";
+    $("#railToggle").textContent = (v ? "◂ " : "▸ ") + (v ? "展开答题栏" : "收起答题栏");
+  };
+  $("#railCollapse").addEventListener("click", () => setRail(true));
+  $("#railToggle").addEventListener("click", () => setRail($("#rail").dataset.collapsed !== "1"));
+
+  // 法律法规汇编
+  $("#btnLaws").addEventListener("click", () => {
+    const q = curQ();
+    const laws = q.laws || [];
+    openModal({
+      title: "法律法规汇编",
+      sub: "第" + q.no + "题 " + q.name + " · " + laws.length + " 条",
+      body: laws.length ? '<div class="lawbox">' + laws.map(l => "<p>" + l + "</p>").join("") + '</div>'
+                        : '<div class="empty"><b>本题没有附法条</b>可在「编辑本题」里补充，或直接查阅纸质法条。</div>',
+      foot: '<button class="btn3d" data-act="cancel">关闭</button>'
+    });
+  });
+
+  // 字号 / 风格
+  $$("[data-fs]").forEach(b => b.addEventListener("click", () => {
+    const p = b.dataset.fs.split(":"), d = parseInt(p[1], 10);
+    if (p[0] === "m"){
+      SET.mfs = clamp(SET.mfs + d, 12, 26);
+      document.documentElement.style.setProperty("--mfs", SET.mfs + "px");
+    } else {
+      SET.afs = clamp(SET.afs + d, 12, 26);
+      document.documentElement.style.setProperty("--afs", SET.afs + "px");
+    }
+    saveSet();
+  }));
+  const STYLES = {
+    blue:  { panel:"#DDEBF6", paper:"#F9FDFF", answerbg:"#EAF4FB", bar:"#E3F0F9" },
+    eye:   { panel:"#DCE9DC", paper:"#F7FBF4", answerbg:"#EDF5E8", bar:"#E2EFE0" },
+    gray:  { panel:"#E4E7EB", paper:"#FBFBFC", answerbg:"#F0F2F5", bar:"#E8EBEF" }
+  };
+  let styleIdx = ["blue","eye","gray"].indexOf(SET.style);
+  if (styleIdx < 0) styleIdx = 0;
+  const applyStyle = () => {
+    const s = STYLES[SET.style] || STYLES.blue, r = document.documentElement.style;
+    r.setProperty("--panel", s.panel); r.setProperty("--paper", s.paper);
+    r.setProperty("--answerbg", s.answerbg); r.setProperty("--bar", s.bar);
+  };
+  applyStyle();
+  $("#btnStyle").addEventListener("click", () => {
+    styleIdx = (styleIdx + 1) % 3;
+    SET.style = ["blue","eye","gray"][styleIdx];
+    applyStyle(); saveSet();
+    toast("配色：" + ({ blue:"默认蓝", eye:"护眼绿", gray:"淡灰" })[SET.style]);
+  });
+
+  // 放大窗口
+  const toggleZoom = el => {
+    const on = el.dataset.zoom === "1";
+    $$("[data-zoom]").forEach(x => x.dataset.zoom = "0");
+    el.dataset.zoom = on ? "0" : "1";
+  };
+  $("#btnZoomMat").addEventListener("click", () => toggleZoom($("#matWrap")));
+  $("#btnZoomAns").addEventListener("click", () => toggleZoom($("#ansWrap")));
+
+  // 编辑工具
+  const ex = c => { try { document.execCommand(c); } catch(e){} ta.focus(); };
+  $("#btnUndo").addEventListener("click", () => ex("undo"));
+  $("#btnRedo").addEventListener("click", () => ex("redo"));
+  $("#btnCut").addEventListener("click", () => ex("cut"));
+  $("#btnCopy").addEventListener("click", () => ex("copy"));
+  $("#btnPaste").addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.readText){
+      navigator.clipboard.readText().then(t => {
+        if (!t) return;
+        ta.setRangeText(t, ta.selectionStart, ta.selectionEnd, "end");
+        W.answers[curKey()] = ta.value; updateCounts(); saveSoon();
+      }).catch(() => toast("浏览器不允许读取剪贴板，请用 Ctrl+V"));
+    } else { toast("请用 Ctrl+V 粘贴"); }
+  });
+  // 材料区标记（把选中文字高亮）
+  const wrapSel = on => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) { toast("请先在材料里选中文字"); return; }
+    const r = sel.getRangeAt(0);
+    if (!$("#matBody").contains(r.commonAncestorContainer)) { toast("请先在材料里选中文字"); return; }
+    if (on){
+      const m = document.createElement("span"); m.className = "hl";
+      try { r.surroundContents(m); } catch(e){ toast("选区跨越了多个段落"); return; }
+    } else {
+      let n = r.commonAncestorContainer;
+      while (n && n.nodeType === 3) n = n.parentNode;
+      const hl = n && n.closest ? n.closest(".hl") : null;
+      if (hl){ const p = hl.parentNode; while (hl.firstChild) p.insertBefore(hl.firstChild, hl); p.removeChild(hl); p.normalize(); }
+    }
+    sel.removeAllRanges();
+  };
+  $("#btnMarkText").addEventListener("click", () => wrapSel(true));
+  $("#btnUnmarkText").addEventListener("click", () => wrapSel(false));
+
+  // 顶栏
+  $("#btnSubmit").addEventListener("click", doSubmit);
+
+  // 抽屉
+  $("#btnHist").addEventListener("click", () => openDrawer("hist"));
+  $("#btnStat").addEventListener("click", () => openDrawer("stat"));
+  $("#btnSet").addEventListener("click", () => openDrawer("set"));
+  $("#drawerClose").addEventListener("click", closeDrawer);
+  $("#scrim").addEventListener("click", closeDrawer);
+  $$(".dtab").forEach(b => b.addEventListener("click", () => openDrawer(b.dataset.tab)));
+
+  // 历史
+  $("#btnSnap").addEventListener("click", () => {
+    W.answers[curKey()] = ta.value;
+    if (snapshot(curKey(), "manual", true)){ renderHistory(); saveNow(true); toast("已保存快照"); }
+    else toast("内容与上一版相同，未重复保存");
+  });
+  $("#btnSaveHist").addEventListener("click", () => openSaveModal("hist", W.cur.qid, "q"));
+  $("#btnClearHist").addEventListener("click", () => {
+    const n = (W.history[curKey()] || []).length;
+    if (!n) { toast("本问还没有历史"); return; }
+    openModal({
+      title: "清空本问历史？", sub: "问题" + (W.cur.ai + 1) + " · " + n + " 个快照",
+      body: '<div class="notice"><span>!</span><span>将删除本问全部 ' + n + ' 个快照，当前作答内容不受影响。此操作不可撤销。</span></div>',
+      foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" data-act="ok" data-autofocus>确认清空</button>',
+      onClose: () => { W._pending = null; }
+    });
+    W._pending = { type:"clearHist" };
+  });
+  $("#histList").addEventListener("click", e => {
+    const it = e.target.closest(".hitem"); if (!it) return;
+    const ts = (W.history[curKey()] || [])[+it.dataset.i].ts;
+    histOpenTs = histOpenTs === ts ? null : ts;
+    renderHistory();
+  });
+  $("#histDetail").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const list = W.history[curKey()] || [];
+    if (b.dataset.mode){ histMode = b.dataset.mode; renderHistDetail(); return; }
+    if (b.dataset.copy != null){ copyText(list[+b.dataset.copy].text || "").then(ok => toast(ok ? "已复制这一版" : "复制失败")); return; }
+    if (b.dataset.drop != null){
+      const i = +b.dataset.drop;
+      openModal({
+        title: "删除这个快照？", sub: fmtStamp(list[i].ts) + " · " + num(list[i].chars) + " 字",
+        body: '<div class="notice"><span>!</span><span>仅删除这一版历史，不影响当前作答。此操作不可撤销。</span></div>',
+        foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" data-act="ok" data-autofocus>确认删除</button>',
+        onClose: () => { W._pending = null; }
+      });
+      W._pending = { type:"drop", i:i };
+      return;
+    }
+    if (b.dataset.restore != null){
+      const i = +b.dataset.restore, h = list[i];
+      openModal({
+        title: "恢复这一版？", sub: fmtStamp(h.ts) + " · " + num(h.chars) + " 字",
+        body: '<div class="notice"><span>!</span><span>当前内容（' + countText(ta.value).total + ' 字）会先存成一个「恢复前」快照，然后被这一版覆盖。</span></div>',
+        foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" data-act="ok" data-autofocus>确认恢复</button>',
+        onClose: () => { W._pending = null; }
+      });
+      W._pending = { type:"restore", i:i };
+    }
+  });
+
+  // 弹窗按钮
+  $("#mhost").addEventListener("click", e => {
+    // 保存文件弹窗
+    if (sv){
+      const inp = $("#svName"); if (inp) sv.name = inp.value.trim() || sv.name;
+      const seg = e.target.closest(".seg");
+      if (seg && (seg.previousElementSibling && /格式|范围/.test(seg.previousElementSibling.textContent || ""))){
+        const v = e.target.closest("button[data-v]");
+        if (v){
+          if (seg.previousElementSibling.textContent.indexOf("格式") >= 0){
+            sv.fmt = v.dataset.v;
+            sv.name = sv.name.replace(/\.[A-Za-z0-9]+$/, "") + "." + FMT[sv.fmt].ext;
+          } else { sv.range = v.dataset.v; sv.name = svDefaultName(); }
+          svRefresh(); return;
+        }
+      }
+    }
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const act = b.dataset.act;
+
+    if (act === "cancel"){ W._pending = null; closeModal(); return; }
+    if (act === "select"){ const a = $("#copyArea"); if (a){ a.focus(); a.select(); } return; }
+    if (act === "copy"){
+      const a = $("#copyArea");
+      if (a){ a.focus(); a.select(); copyText(a.value).then(ok => toast(ok ? "已复制到剪贴板" : "复制失败——已全选，请按 Ctrl+C")); }
+      return;
+    }
+    if (act === "export"){ closeModal(); openSaveModal("answers"); return; }
+    if (act === "close"){ closeModal(); return; }
+    if (act === "restart"){
+      W.running = false; W.elapsedMs = 0; W.accumMs = 0; W.startedAt = null;
+      closeModal(); saveNow(true); tick(); toast("计时已重置，可以继续修改");
+      return;
+    }
+    if (act === "sv-copy"){ copyText(svText()).then(ok => toast(ok ? "已复制，粘贴到记事本另存即可" : "复制失败，请手动全选")); return; }
+    if (act === "sv-save"){
+      if (!/\.[A-Za-z0-9]+$/.test(sv.name)) sv.name += "." + FMT[sv.fmt].ext;
+      saveFile(sv.name, svText(), sv.fmt).then(res => {
+        if (res === "saved") toast("已保存 " + sv.name);
+        else if (res === "cancelled"){ /* 用户取消 */ }
+        else toast("已触发下载——若无文件出现，请改用「复制内容」");
+      });
+      return;
+    }
+    if (act === "ok"){
+      if (modalLikely("确认交卷")){ closeModal(); doFinish(); return; }
+      const p = W._pending; W._pending = null;
+      if (p && p.type === "delQ"){ doDeleteQuestion(p.qid); return; }
+      if (p && p.type === "drop"){
+        W.history[curKey()].splice(p.i, 1);
+        histOpenTs = null; closeModal(); renderHistory(); saveNow(true); toast("快照已删除");
+        return;
+      }
+      if (p && p.type === "restore"){
+        const h = W.history[curKey()][p.i];
+        snapshot(curKey(), "restore", true);
+        W.answers[curKey()] = h.text;
+        $("#answer").value = h.text;
+        updateCounts(); closeModal(); renderHistory(); saveNow(true);
+        toast("已恢复到 " + fmtClock(h.ts) + " 的版本");
+        return;
+      }
+      if (p && p.type === "clearHist"){
+        W.history[curKey()] = [];
+        closeModal(); renderHistory(); saveNow(true); toast("已清空本问历史");
+        return;
+      }
+      if (p && p.type === "edit"){
+        const q = qById(p.qid);
+        q.name = $("#edName").value.trim() || q.name;
+        const tg = parseInt(($("#edTarget").value || "").replace(/[^\d]/g, ""), 10);
+        q.target = isNaN(tg) ? 0 : tg;
+        q.material = parseMaterial($("#edMat").value);
+        q.asks = ($("#edAsk").value || "").split("\n").map(s => s.trim()).filter(Boolean);
+        q.reqs = ($("#edReq").value || "").split("\n").map(s => s.trim()).filter(Boolean);
+        q.laws = ($("#edLaws").value || "").split("\n").map(s => s.trim()).filter(Boolean);
+        writeJSON(EX_KEY, EXAM);
+        // 问题条数可能变了，answers/marks/history 都要补键
+        W.cur.ai = clamp(W.cur.ai, 0, Math.max(0, curAskCount(q) - 1));
+        ensureWorkKeys();
+        closeModal();
+        renderChips(); renderAskTabs(); renderMaterial(); renderAnswer();
+        saveNow(true);
+        toast("题目已更新");
+        return;
+      }
+      closeModal();
+    }
+  });
+  $("#mhost").addEventListener("input", e => { if (sv && e.target.id === "svName") sv.name = e.target.value; });
+
+  // 设置面板
+  $("#setPanel").addEventListener("click", e => {
+    const sw = e.target.closest(".switch");
+    if (sw){
+      const on = sw.dataset.on !== "1";
+      sw.dataset.on = on ? "1" : "0";
+      if (sw.id === "setIndent") SET.indent = on;
+      if (sw.id === "setAutosnap") SET.autosnap = on;
+      if (sw.id === "setAutoFile") SET.autoFile = on;
+      saveSet(); return;
+    }
+    const b = e.target.closest("button"); if (!b) return;
+    const fsc = e.target.closest("[data-fscope]");
+    if (fsc){ SET.fileScope = fsc.dataset.fscope; saveSet(); renderSettings(); return; }
+    if (b.id === "setBind"){ bindFile().then(ok => { if (ok){ renderSettings(); toast("已绑定 " + fileHandle.name); } }); return; }
+    if (b.id === "setUnbind"){ fileHandle = null; lastFileWrite = 0; renderFileChip(); renderSettings(); toast("已解除文件绑定"); return; }
+    if (b.id === "setExport"){ openSaveModal("answers"); return; }
+    if (b.id === "setExportHist"){ openSaveModal("hist", null, "all"); return; }
+    if (b.id === "setExportAll"){ openSaveModal("archive"); return; }
+    if (b.id === "setImport"){
+      openModal({
+        title: "导入题库 / 答卷", sub: "粘贴此前导出的 JSON",
+        body: '<div class="field"><label>JSON</label><textarea id="impArea" rows="11" placeholder=\'{"kind":"archive", ...}\'></textarea>' +
+              '<div class="hint">支持三种：完整备份、答卷、题库。</div></div>',
+        foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" id="impGo">导入</button>'
+      });
+      $("#impGo").addEventListener("click", () => {
+        let d; try { d = JSON.parse($("#impArea").value); } catch(err){ toast("JSON 解析失败：" + err.message); return; }
+        if (d && d.kind === "archive" && d.exam && d.work){
+          EXAM = d.exam; writeJSON(EX_KEY, EXAM); W = d.work;
+          finishImport("完整备份已导入：共 " + EXAM.questions.length + " 题");
+        } else if (d && d.kind === "answers" && d.answers){
+          W.answers = d.answers;
+          if (d.history) W.history = d.history;
+          if (d.marks) W.marks = d.marks;
+          if (d.elapsedMs != null) W.elapsedMs = d.elapsedMs;
+          if (d.startedAt) W.startedAt = d.startedAt;
+          finishImport("答卷已导入");
+        } else if (d && d.questions && d.questions.length){
+          EXAM = d; writeJSON(EX_KEY, EXAM); W = defaultWork();
+          finishImport("题库已导入，共 " + EXAM.questions.length + " 题");
+        } else { toast("无法识别的数据格式"); }
+      });
+      return;
+    }
+    if (b.id === "setResetWork"){
+      openModal({
+        title: "清空答卷与历史？", sub: "题目本身会保留",
+        body: '<div class="notice"><span>!</span><span>将删除全部作答、标记与历史快照。此操作不可撤销。</span></div>' +
+              '<div class="field" style="margin:0"><div class="hint">建议先点「保存答卷到文件」留一份。</div></div>',
+        foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" id="rwGo" data-autofocus>确认清空</button>'
+      });
+      $("#rwGo").addEventListener("click", () => {
+        W = defaultWork(); closeModal(); finishImport("已清空");
+      });
+      return;
+    }
+    if (b.id === "setResetAll"){
+      openModal({
+        title: "重置为空白题库？", sub: "当前题目与全部作答都会被替换",
+        body: '<div class="notice"><span>!</span><span>将换回 ' + BLANK_Q + ' 道空白题，并清空全部作答与历史。自己编的题目会丢失，建议先导出完整备份。</span></div>',
+        foot: '<button class="btn3d" data-act="cancel">取消</button><button class="btn3d" id="raGo" data-autofocus>确认重置</button>'
+      });
+      $("#raGo").addEventListener("click", () => {
+        EXAM = blankExam(); writeJSON(EX_KEY, EXAM);
+        W = defaultWork(); closeModal(); finishImport("已重置为空白题库"); renderSettings();
+      });
+    }
+  });
+  $("#setPanel").addEventListener("change", e => {
+    const c = EXAM.meta.candidate || (EXAM.meta.candidate = {});
+    if (e.target.id === "setCName"){ c.name = e.target.value; $("#cName").textContent = c.name; }
+    if (e.target.id === "setCSex"){ c.sex = e.target.value; $("#cSex").textContent = c.sex; }
+    if (e.target.id === "setCNo"){ c.no = e.target.value; $("#cNo").textContent = c.no; }
+    if (e.target.id === "setCId"){ c.id = e.target.value; $("#cId").textContent = c.id; }
+    if (/^setC/.test(e.target.id)){ writeJSON(EX_KEY, EXAM); return; }
+    if (e.target.id === "setName"){
+      EXAM.meta.examName = e.target.value.trim() || EXAM.meta.examName;
+      writeJSON(EX_KEY, EXAM); $("#examName").textContent = EXAM.meta.examName;
+    }
+    if (e.target.id === "setDur"){
+      const v = clamp(parseInt(e.target.value, 10) || 240, 10, 600);
+      e.target.value = v; EXAM.meta.durationMin = v; writeJSON(EX_KEY, EXAM);
+    }
+  });
+
+  // 编辑 / 新建题目
+  $("#btnEditQ").addEventListener("click", editCurrent);
+  $("#matTitle").addEventListener("dblclick", editCurrent);
+  $("#matTitle").style.cursor = "pointer";
+  $("#matTitle").title = "双击也可编辑本题";
+  $("#btnNewQ").addEventListener("click", addQuestion);
+
+  // 分隔：材料/答题 高度可拖
+  // 快捷键
+  document.addEventListener("keydown", e => {
+    const meta = e.ctrlKey || e.metaKey;
+    if (meta && e.key.toLowerCase() === "s"){ e.preventDefault(); quickSave(); return; }
+    if (e.altKey && e.key === "ArrowLeft"){ e.preventDefault(); ta.blur(); stepQ(-1); return; }
+    if (e.altKey && e.key === "ArrowRight"){ e.preventDefault(); ta.blur(); stepQ(1); return; }
+    if (e.altKey && e.key === "ArrowUp"){ e.preventDefault(); ta.blur(); stepA(-1); return; }
+    if (e.altKey && e.key === "ArrowDown"){ e.preventDefault(); ta.blur(); stepA(1); return; }
+    if (e.altKey && e.key.toLowerCase() === "m"){
+      e.preventDefault();
+      W.marks[curKey()] = !W.marks[curKey()];
+      $("#markBox").checked = !!W.marks[curKey()];
+      renderChips(); renderAskTabs(); saveSoon();
+      toast(W.marks[curKey()] ? "已标记本问" : "已取消标记");
+      return;
+    }
+    if (e.key === "Escape"){
+      if ($("#mhost").dataset.open === "1"){ W._pending = null; closeModal(); }
+      else if ($("#drawer").dataset.open === "1") closeDrawer();
+      else $$("[data-zoom]").forEach(x => x.dataset.zoom = "0");
+    }
+  });
+
+  $("#fileChip").addEventListener("click", e => {
+    if (!window.showSaveFilePicker && !pickerBlocked){ toast("当前浏览器不支持直接写入文件，请用「保存到文件」"); return; }
+    bindFile().then(ok => { if (ok) toast("已绑定 " + fileHandle.name + "，Ctrl+S 直接覆盖保存"); });
+  });
+
+  window.addEventListener("beforeunload", () => { W.answers[curKey()] = ta.value; saveNow(true); });
+}
+
+function finishImport(msg){
+  if (!W.cur || !qById(W.cur.qid)) W.cur = { qid: EXAM.questions[0].id, ai: 0 };
+  W.cur.ai = clamp(W.cur.ai | 0, 0, Math.max(0, curAskCount(curQ()) - 1));
+  allKeys().forEach(k => {
+    if (typeof W.answers[k] !== "string") W.answers[k] = "";
+    if (typeof W.marks[k] !== "boolean") W.marks[k] = false;
+    if (!Array.isArray(W.history[k])) W.history[k] = [];
+  });
+  W.accumMs = W.elapsedMs || 0;
+  $("#examName").textContent = EXAM.meta.examName;
+  renderChips(); renderAskTabs(); renderMaterial(); renderAnswer(); renderFileChip(); tick();
+  saveNow(true);
+  if ($("#drawer").dataset.open === "1"){ renderHistory(); renderStats(); renderSettings(); }
+  toast(msg);
+}
+function modalLikely(t){ const h = $("#mhost .modal-head h2"); return h && h.textContent.indexOf(t) === 0; }
+
+/* ---------- 增删题目 ---------- */
+function renumber(){ EXAM.questions.forEach((q, i) => { q.no = i + 1; }); }
+function ensureWorkKeys(){
+  allKeys().forEach(k => {
+    if (typeof W.answers[k] !== "string") W.answers[k] = "";
+    if (typeof W.marks[k] !== "boolean") W.marks[k] = false;
+    if (!Array.isArray(W.history[k])) W.history[k] = [];
+  });
+}
+function addQuestion(){
+  W.answers[curKey()] = $("#answer").value;
+  let i = 1;
+  while (qById("q" + i)) i++;
+  const q = blankQuestion(EXAM.questions.length + 1);
+  q.id = "q" + i;
+  EXAM.questions.push(q);
+  renumber();
+  writeJSON(EX_KEY, EXAM);
+  ensureWorkKeys();
+  W.cur = { qid: q.id, ai: 0 };
+  histOpenTs = null;
+  renderChips(); renderAskTabs(); renderMaterial(); renderAnswer();
+  saveNow(true);
+  editCurrent();                       // 建完直接弹编辑框，省一步
+}
+function deleteQuestion(){
+  if (EXAM.questions.length <= 1){ toast("至少要保留一道题"); return; }
+  const q = curQ();
+  let chars = 0;
+  for (let i = 0; i < curAskCount(q); i++) chars += countText(ansOf(keyOf(q.id, i))).total;
+  openModal({
+    title: "删除第" + q.no + "题？",
+    sub: q.name + " · " + curAskCount(q) + " 问 · " + num(chars) + " 字",
+    body: '<div class="notice"><span>!</span><span>会连同这道题的作答与全部历史快照一起删掉，不可撤销。</span></div>',
+    foot: '<button class="btn3d" data-act="cancel">取消</button>' +
+          '<button class="btn3d" data-act="ok" data-autofocus>确认删除</button>',
+    onClose: () => { W._pending = null; }
+  });
+  W._pending = { type:"delQ", qid:q.id };
+}
+function doDeleteQuestion(qid){
+  const q = qById(qid);
+  const i = EXAM.questions.indexOf(q);
+  if (i < 0){ closeModal(); return; }
+  Object.keys(W.answers).forEach(k => {
+    if (k.indexOf(q.id + "#") === 0){ delete W.answers[k]; delete W.marks[k]; delete W.history[k]; }
+  });
+  EXAM.questions.splice(i, 1);
+  renumber();
+  writeJSON(EX_KEY, EXAM);
+  const nx = EXAM.questions[Math.min(i, EXAM.questions.length - 1)];
+  W.cur = { qid: nx.id, ai: 0 };
+  histOpenTs = null;
+  closeModal();
+  renderChips(); renderAskTabs(); renderMaterial(); renderAnswer(); renderSettings();
+  saveNow(true);
+  toast("已删除");
+}
+function parseMaterial(text){
+  const out = [];
+  text.split(/\n{2,}/).forEach(block => {
+    const lines = block.split("\n");
+    let head = "";
+    if (/^##\s*/.test(lines[0].trim())) head = lines.shift().trim().replace(/^##\s*/, "");
+    const body = lines.join("\n").trim();
+    if (head) out.push({ t:"[" + head + "] " + body });
+    else if (body) out.push({ t:body });
+  });
+  return out;
+}
+function editCurrent(){
+  const q = curQ();
+  const matText = (q.material || []).map(m => m.t).join("\n\n");
+  openModal({
+    title: "编辑第" + q.no + "题",
+    sub: "材料空行分段；行首 ## 会渲染成 [小标题]",
+    body:
+      '<div class="field"><label>科目名</label><input type="text" id="edName" value="' + esc(q.name) + '"></div>' +
+      '<div class="field"><label>建议字数</label><input type="text" id="edTarget" value="' + (q.target || "") + '" style="font-family:var(--mono)"></div>' +
+      '<div class="field"><label>材料</label><textarea id="edMat" rows="10">' + esc(matText) + '</textarea></div>' +
+      '<div class="field"><label>问题（每行一问，对应一个「问题N」标签）</label><textarea id="edAsk" rows="6">' + esc((q.asks || []).join("\n")) + '</textarea></div>' +
+      '<div class="field"><label>答题要求（每行一条）</label><textarea id="edReq" rows="3">' + esc((q.reqs || []).join("\n")) + '</textarea></div>' +
+      '<div class="field"><label>参考法条（每行一条，支持 HTML）</label><textarea id="edLaws" rows="4">' + esc((q.laws || []).join("\n")) + '</textarea></div>',
+    foot: (EXAM.questions.length > 1 ? '<button class="btn3d" id="edDel">删除本题</button>' : '') +
+          '<button class="btn3d" data-act="cancel" style="margin-left:auto">取消</button>' +
+          '<button class="btn3d" data-act="ok" data-autofocus>保存</button>',
+    onClose: () => { W._pending = null; }
+  });
+  W._pending = { type:"edit", qid:q.id };
+  const del = $("#edDel");
+  if (del) del.addEventListener("click", () => { W._pending = null; deleteQuestion(); });
+}
+
+/* ============================================================================
+   9. 启动
+   ========================================================================== */
+function start(){
+  boot();
+  const c = EXAM.meta.candidate || {};
+  $("#cName").textContent = c.name || "";
+  $("#cSex").textContent = c.sex || "";
+  $("#cNo").textContent = c.no || "";
+  $("#cId").textContent = c.id || "";
+  $("#examName").textContent = EXAM.meta.examName;
+  document.documentElement.style.setProperty("--mfs", SET.mfs + "px");
+  document.documentElement.style.setProperty("--afs", SET.afs + "px");
+
+  renderChips(); renderAskTabs(); renderMaterial(); renderAnswer(); renderFileChip();
+  bind();
+  W.accumMs = W.elapsedMs || 0;
+  tick();
+  timerId = setInterval(tick, 1000);
+
+  setInterval(() => { if (W.running) saveNow(true); }, 30000);
+  setInterval(() => {
+    if (!fileHandle || !SET.autoFile) return;
+    if (lastEditAt <= lastFileWrite) return;
+    writeToFile();
+  }, 30000);
+
+  $("#answer").focus();
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+else start();
+
+})();
+</script>
